@@ -1,0 +1,40 @@
+{
+	"schemaVersion": 1,
+	"id": "more-world-presets",
+	"version": "${version}",
+	"name": "More World Presets",
+	"description": "none",
+	"authors": [
+		"hawiwias"
+	],
+	"contact": {
+		"homepage": "",
+		"sources": ""
+	},
+	"license": "CC0-1.0",
+	"icon": "assets/more-world-presets/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"hawiwias.worldpresets.MoreWorldPresets"
+		],
+		"client": [
+			"hawiwias.worldpresets.MoreWorldPresetsClient"
+		],
+		"fabric-datagen": [
+		]
+	},
+	"mixins": [
+		"more-world-presets.mixins.json",
+		{
+			"config": "more-world-presets.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.18.4",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	}
+}

@@ -1,0 +1,55 @@
+package hawiwias.worldpresets.mixin;
+
+import com.mojang.datafixers.DataFixer;
+import com.mojang.serialization.Lifecycle;
+import hawiwias.worldpresets.MWP_FIELDS;
+import hawiwias.worldpresets.PhaseManager;
+import net.minecraft.core.RegistryAccess;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.LevelSettings;
+import net.minecraft.world.level.levelgen.WorldOptions;
+import net.minecraft.world.level.storage.LevelVersion;
+import net.minecraft.world.level.storage.PrimaryLevelData;
+import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import com.mojang.serialization.Dynamic;
+
+@Mixin(PrimaryLevelData.class)
+public abstract class PrimaryLevelDataMixin {
+    @Inject(method = "parse", at = @At("RETURN"))
+    private static <T> void onParse(
+            Dynamic<T> dynamic,
+            DataFixer dataFixer,
+            int i,
+            CompoundTag compoundTag,
+            LevelSettings levelSettings,
+            LevelVersion levelVersion,
+            PrimaryLevelData.SpecialWorldProperty specialWorldProperty,
+            WorldOptions worldOptions,
+            Lifecycle lifecycle,
+            CallbackInfoReturnable<PrimaryLevelData> CIR
+    ) {
+        MWP_FIELDS.isWinterWorld = dynamic.get("winterworld").asBoolean(false);
+        MWP_FIELDS.challengeWorld = dynamic.get("challengeworld").asInt(0);
+        PhaseManager.currentPhaseProgress = dynamic.get("currentPhaseProgress").asInt(0);
+        PhaseManager.currentPhaseIndex = dynamic.get("currentPhaseIndex").asInt(0);
+        MWP_FIELDS.challengeWorld = dynamic.get("challengeworld").asInt(0);
+        MWP_FIELDS.isSkyblockWorld = dynamic.get("skyblockworld").asBoolean(false);
+        MWP_FIELDS.isOneblockWorld = dynamic.get("oneblockworld").asBoolean(false);
+        MWP_FIELDS.isSkygridWorld = dynamic.get("skygridworld").asBoolean(false);
+    }
+
+    @Inject(method = "setTagData", at = @At("TAIL"))
+    private void onSetTagData(RegistryAccess registryAccess, CompoundTag tag, CompoundTag playerTag, CallbackInfo ci) {
+        tag.putBoolean("winterworld", MWP_FIELDS.isWinterWorld);
+        tag.putInt("challengeworld", MWP_FIELDS.challengeWorld);
+        tag.putInt("currentPhaseProgress", PhaseManager.currentPhaseProgress);
+        tag.putInt("currentPhaseIndex", PhaseManager.currentPhaseIndex);
+        tag.putBoolean("skyblockworld", MWP_FIELDS.isSkyblockWorld);
+        tag.putBoolean("oneblockworld", MWP_FIELDS.isOneblockWorld);
+        tag.putBoolean("skygridworld", MWP_FIELDS.isSkygridWorld);
+    }
+}

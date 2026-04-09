@@ -1,0 +1,11 @@
+{
+  "replace": false,
+  "values": [
+    "moreworldpresets:winter_world",
+    "moreworldpresets:challenge_world",
+    "moreworldpresets:floating_islands",
+    "moreworldpresets:skyblock_world",
+    "moreworldpresets:oneblock_world",
+    "moreworldpresets:skygrid_world"
+  ]
+}
