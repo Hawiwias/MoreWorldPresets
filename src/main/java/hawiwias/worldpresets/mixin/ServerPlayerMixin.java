@@ -1,6 +1,7 @@
 package hawiwias.worldpresets.mixin;
 
 import hawiwias.worldpresets.MWP_FIELDS;
+import hawiwias.worldpresets.MoreWorldPresets;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -25,6 +26,8 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+
+import static net.minecraft.world.level.Level.OVERWORLD;
 
 @Mixin(ServerPlayer.class)
 public abstract class ServerPlayerMixin extends LivingEntity {
@@ -114,5 +117,17 @@ public abstract class ServerPlayerMixin extends LivingEntity {
                 t.placeInWorld(currentLevel, placePos, placePos, settings, currentLevel.random, 1026);
             });
         });
+    }
+    @Inject(method = "tick", at = @At("TAIL"))
+    private void tick(CallbackInfo ci) {
+        ServerPlayer player = (ServerPlayer) (Object) this;
+        double x = player.getX();
+        double y = player.getY();
+        double z = player.getZ();
+        if (MWP_FIELDS.isOneblockWorld) {
+            if (y >= 64.0 && y < 65 && x >= -0.2 && x <= 1.2 && z >= -0.2 && z <= 1.2) {
+                player.teleportTo(player.serverLevel(), player.getX(), 66.6, player.getZ(), player.getYRot(), player.getXRot());
+            }
+        }
     }
 }

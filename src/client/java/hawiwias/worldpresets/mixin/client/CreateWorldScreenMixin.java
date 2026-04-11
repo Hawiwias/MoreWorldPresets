@@ -2,6 +2,8 @@ package hawiwias.worldpresets.mixin.client;
 
 
 import hawiwias.worldpresets.MWP_FIELDS;
+import hawiwias.worldpresets.Phase;
+import hawiwias.worldpresets.PhaseManager;
 import net.minecraft.client.gui.screens.worldselection.CreateWorldScreen;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,6 +29,8 @@ public class CreateWorldScreenMixin {
         MWP_FIELDS.isSkygridWorld = false;
         MWP_FIELDS.challengeWorld = 0;
         MWP_FIELDS.SkyblockWorld = 1;
+        PhaseManager.currentPhaseIndex = 0;
+        PhaseManager.currentPhaseProgress = 0;
     }
 
 }

@@ -10,8 +10,12 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.phys.AABB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 public class MoreWorldPresets implements ModInitializer {
 	public static final String MOD_ID = "more-world-presets";
@@ -19,13 +23,20 @@ public class MoreWorldPresets implements ModInitializer {
 	public static MinecraftServer INSTANCE;
 	@Override
 	public void onInitialize() {
-			PlayerBlockBreakEvents.BEFORE.register((world, player, blockPos, state, blockEntity) -> {
-				if (blockPos.equals(new BlockPos(0, 65, 0)) && MWP_FIELDS.isOneblockWorld) {
-					PhaseManager.onBlockBroken();
+		PlayerBlockBreakEvents.AFTER.register((world, player, blockPos, state, blockEntity) -> {
+			if (!blockPos.equals(new BlockPos(0, 65, 0)) || !MWP_FIELDS.isOneblockWorld) return;
 
-				}
-				return true;
-			});
+			PhaseManager.onBlockBroken();
+
+			List<ItemEntity> drops = world.getEntitiesOfClass(
+					ItemEntity.class,
+					new AABB(blockPos).inflate(0.2)
+			);
+
+			for (ItemEntity item : drops) {
+				item.setDeltaMovement(0, 0.3, 0);
+			}
+		});
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			ServerPlayer player = handler.getPlayer();
 			if (player.getStats().getValue(Stats.CUSTOM.get(Stats.PLAY_TIME)) == 0) {
@@ -65,15 +76,19 @@ public class MoreWorldPresets implements ModInitializer {
 						);
 					});
 				}
+				if (MWP_FIELDS.isOneblockWorld) {
+					player.getServer().execute(() -> {
+						player.teleportTo(
+								player.serverLevel(),
+								0.500,
+								66,
+								0.500,
+								player.getYRot(),
+								player.getXRot()
+						);
+					});
+				}
 			}
 		});
-	}
-	public static void createPhaseBar(MinecraftServer server) {
-		if (PhaseManager.phaseProgressBar == null) {
-			PhaseManager.phaseProgressBar = server.getCustomBossEvents().create(
-					new ResourceLocation("moreworldpresets", "phase_progress"),
-					Component.literal("232")
-			);
-		}
 	}
 }
