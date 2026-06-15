@@ -7,10 +7,12 @@ import hawiwias.worldpresets.PhaseManager;
 import net.minecraft.core.*;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LightningBolt;
 import net.minecraft.world.entity.animal.horse.SkeletonHorse;
@@ -19,6 +21,7 @@ import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.*;
+import net.minecraft.world.level.block.entity.ChestBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
@@ -34,10 +37,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-import static hawiwias.worldpresets.PhaseManager.currentPhaseProgress;
-import static hawiwias.worldpresets.PhaseManager.phaseProgressBar;
+import static hawiwias.worldpresets.PhaseManager.*;
 
 
 @Mixin(ServerLevel.class)
@@ -47,6 +51,10 @@ public abstract class ServerLevelMixin extends Level {
     }
     @Shadow
     protected abstract BlockPos findLightningTargetAround(BlockPos pos);
+
+    @Shadow
+    public abstract ServerLevel getLevel();
+
     /**
      * @author hawiwias
      * @reason winter world snow and ice accumulation
@@ -180,16 +188,39 @@ public abstract class ServerLevelMixin extends Level {
             Phase currentPhase = PhaseManager.getCurrentPhase();
             //SET BLOCK
             BlockPos pos = new BlockPos(0, 65, 0);
-            if (level.getBlockState(pos).is(Blocks.AIR)) {
+            List<Block> blockList = new java.util.ArrayList<>(List.of());
+            List<EntityType> entityList = new java.util.ArrayList<>(List.of());
+            List<ResourceLocation> lootTableList = new java.util.ArrayList<>(List.of());
+            for (Phase phase : PhaseManager.phases) {
+                if (phase.unlocked) {
+                    blockList.addAll(phase.blocks);
+                    entityList.addAll(phase.entities);
+                    lootTableList.addAll(phase.lootTables);
+                }
+            }
+            if (!blockList.isEmpty() && level.getBlockState(pos).is(Blocks.AIR)) {
+                if (random.nextInt(55) == 0) {
+                    Entity entity = entityList.get(random.nextInt(entityList.size())).create(level);
+                    entity.setPos(0.5, 66, 0.5);
+                    level.addFreshEntity(entity);
+                }
+
                 level.getServer().execute(() -> {
-                    level.setBlock(pos, currentPhase.blocks.get(level.random.nextInt(currentPhase.blocks.size())).defaultBlockState(), 1026);
+                    level.setBlock(pos, blockList.get(level.random.nextInt(blockList.size())).defaultBlockState(), 3 | 16);
                 });
+                if (random.nextInt(60) == 0) {
+                    level.getServer().execute(() -> {
+                        level.setBlock(pos, Blocks.CHEST.defaultBlockState(), 3 | 16);
+                    });
+                    ChestBlockEntity chest = (ChestBlockEntity) level.getBlockEntity(pos);
+                    chest.setLootTable(lootTableList.get(random.nextInt(lootTableList.size())), random.nextLong());
+                }
             }
             //SET PHASE INFO
             if (phaseProgressBar != null) {
                 phaseProgressBar.setMax(currentPhase.maxBlocks);
                 phaseProgressBar.setColor(currentPhase.color);
-                phaseProgressBar.setName(Component.literal( currentPhase.name +" - " + (currentPhase.maxBlocks - currentPhaseProgress) + " blocks remaining").withStyle(currentPhase.color.getFormatting()));
+                phaseProgressBar.setName(Component.literal( currentPhase.name +" - " + (currentPhase.maxBlocks - currentPhaseProgress) + " blocks remaining").withStyle(currentPhase.textColor));
                 phaseProgressBar.setValue(currentPhaseProgress);
             }
         }

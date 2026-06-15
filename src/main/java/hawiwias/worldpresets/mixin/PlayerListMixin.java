@@ -38,6 +38,11 @@ public class PlayerListMixin {
             for(ServerPlayer serverplayer : players) {
                 serverplayer.setRespawnPosition(serverPlayer.level().dimension(),new BlockPos((int) 9.5, 67, (int) 7.5), serverplayer.getYRot(), true, false);
             }
+        } else if (MWP_FIELDS.isOneblockWorld && serverPlayer.getRespawnPosition() == null) {
+
+            for(ServerPlayer serverplayer : players) {
+                serverplayer.setRespawnPosition(serverPlayer.level().dimension(),new BlockPos((int) 0.5, 66, (int) 0.5), serverplayer.getYRot(), true, false);
+            }
         }
     }
     @Inject(method = "placeNewPlayer", at = @At("TAIL"))

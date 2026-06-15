@@ -10,6 +10,7 @@
     "MinecraftServerMixin",
     "NoiseBasedChunkGeneratorMixin",
     "PlayerListMixin",
+    "PlayerMixin",
     "PrimaryLevelDataMixin",
     "ServerLevelMixin",
     "ServerPlayerMixin",

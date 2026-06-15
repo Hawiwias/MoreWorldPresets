@@ -9,6 +9,7 @@
     "CreateWorldScreenWorldTabMixin",
     "FogRendererMixin",
     "FoliageColorMixin",
+    "GuiMixin",
     "LevelRendererMixin",
     "SwitchGridDisabler",
     "WorldCreationUiStateMixin"

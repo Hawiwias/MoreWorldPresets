@@ -20,6 +20,9 @@ public class CreateWorldScreenMixin {
         MWP_FIELDS.isSkygridWorld = false;
         MWP_FIELDS.challengeWorld = 0;
         MWP_FIELDS.SkyblockWorld = 1;
+        for (int i = 0; i < PhaseManager.phases.size(); i++) {
+            PhaseManager.phases.get(i).unlocked = (i == 0);
+        }
     }
     @Inject(method = "openFresh", at = @At("HEAD"))
     private static void onopenFresh(CallbackInfo ci) {
@@ -31,6 +34,9 @@ public class CreateWorldScreenMixin {
         MWP_FIELDS.SkyblockWorld = 1;
         PhaseManager.currentPhaseIndex = 0;
         PhaseManager.currentPhaseProgress = 0;
+        for (int i = 0; i < PhaseManager.phases.size(); i++) {
+            PhaseManager.phases.get(i).unlocked = (i == 0);
+        }
     }
 
 }

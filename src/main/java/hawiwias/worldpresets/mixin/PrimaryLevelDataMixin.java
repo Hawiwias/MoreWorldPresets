@@ -36,10 +36,12 @@ public abstract class PrimaryLevelDataMixin {
         MWP_FIELDS.challengeWorld = dynamic.get("challengeworld").asInt(0);
         PhaseManager.currentPhaseProgress = dynamic.get("currentPhaseProgress").asInt(0);
         PhaseManager.currentPhaseIndex = dynamic.get("currentPhaseIndex").asInt(0);
-        MWP_FIELDS.challengeWorld = dynamic.get("challengeworld").asInt(0);
         MWP_FIELDS.isSkyblockWorld = dynamic.get("skyblockworld").asBoolean(false);
         MWP_FIELDS.isOneblockWorld = dynamic.get("oneblockworld").asBoolean(false);
         MWP_FIELDS.isSkygridWorld = dynamic.get("skygridworld").asBoolean(false);
+        for (int j = 0; j < PhaseManager.phases.size(); j++) {
+            PhaseManager.phases.get(j).unlocked = dynamic.get("phase_unlocked_" + j).asBoolean(j == 0);
+        }
     }
 
     @Inject(method = "setTagData", at = @At("TAIL"))
@@ -51,5 +53,8 @@ public abstract class PrimaryLevelDataMixin {
         tag.putBoolean("skyblockworld", MWP_FIELDS.isSkyblockWorld);
         tag.putBoolean("oneblockworld", MWP_FIELDS.isOneblockWorld);
         tag.putBoolean("skygridworld", MWP_FIELDS.isSkygridWorld);
+        for (int j = 0; j < PhaseManager.phases.size(); j++) {
+            tag.putBoolean("phase_unlocked_" + j, PhaseManager.phases.get(j).unlocked);
+        }
     }
 }
