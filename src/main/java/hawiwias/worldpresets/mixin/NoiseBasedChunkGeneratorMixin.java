@@ -71,7 +71,7 @@ public class NoiseBasedChunkGeneratorMixin {
             }
         }
         //CLEAR WORLD (VOID)
-        if (MWP_FIELDS.isSkyblockWorld || MWP_FIELDS.isOneblockWorld || MWP_FIELDS.isSkygridWorld) {
+        if (MWP_FIELDS.isSkyblockWorld || MWP_FIELDS.isOneblockWorld || MWP_FIELDS.isSkygridWorld || MWP_FIELDS.challengeWorld == 2) {
             for (BlockPos pos : BlockPos.betweenClosed(
                     chunkAccess.getPos().getMinBlockX(), chunkAccess.getMinBuildHeight(), chunkAccess.getPos().getMinBlockZ(),
                     chunkAccess.getPos().getMaxBlockX(), chunkAccess.getMaxBuildHeight(), chunkAccess.getPos().getMaxBlockZ()

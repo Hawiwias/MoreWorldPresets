@@ -1,6 +1,7 @@
 package hawiwias.worldpresets.mixin.client;
 
 
+import hawiwias.worldpresets.MWP_FIELDS;
 import hawiwias.worldpresets.WorldPresetsScreen;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.components.*;
@@ -43,15 +44,24 @@ public abstract class CreateWorldScreenWorldTabMixin extends GridLayoutTab {
             Minecraft.getInstance().setScreen(new WorldPresetsScreen(createWorldScreen));
         }).build());
         currentPresetWidget = new StringWidget(
-                Component.translatable("selectWorld.currentPreset").append(createWorldScreen.getUiState().getWorldType().describePreset()),
+                buildPresetLabel(createWorldScreen.getUiState().getWorldType().describePreset()),
                 Minecraft.getInstance().font
         ).alignLeft();
         gridlayout$rowhelper.addChild(currentPresetWidget, gridlayout$rowhelper.newCellSettings().alignVerticallyMiddle());
         createWorldScreen.getUiState().addListener((state) -> {
             currentPresetWidget.setMessage(
-                    Component.translatable("selectWorld.currentPreset").append(state.getWorldType().describePreset())
+                    buildPresetLabel(state.getWorldType().describePreset())
             );
         });
+    }
+
+    @Unique
+    private Component buildPresetLabel(Component presetName) {
+        Component base = Component.translatable("selectWorld.currentPreset").append(presetName);
+        if (presetName.getString().equals("Challenge World")) {
+            base = base.copy().append(" " + MWP_FIELDS.challengeWorld);
+        }
+        return base;
     }
 
 }

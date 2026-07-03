@@ -69,10 +69,6 @@ public abstract class PlayerMixin extends LivingEntity implements TemperatureAcc
         }
         return new heatValues(20.0f, 1.0f);
     }
-
-
-    @Unique
-    private int ticksOutside = 0;
     @Unique
     private float coldMeter = 0f; // 0-100
 
