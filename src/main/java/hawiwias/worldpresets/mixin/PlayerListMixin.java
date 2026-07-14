@@ -2,6 +2,7 @@ package hawiwias.worldpresets.mixin;
 
 import com.google.common.collect.Lists;
 import hawiwias.worldpresets.MWP_FIELDS;
+import hawiwias.worldpresets.MoreWorldPresets;
 import hawiwias.worldpresets.PhaseManager;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.Connection;
@@ -25,26 +26,6 @@ import static hawiwias.worldpresets.PhaseManager.phaseProgressBar;
 
 @Mixin(PlayerList.class)
 public class PlayerListMixin {
-    @Shadow
-    private final List<ServerPlayer> players = Lists.newArrayList();
-    @Inject(method = "respawn", at = @At("TAIL"))
-    private void replaceSpawn(ServerPlayer serverPlayer, boolean bl, CallbackInfoReturnable<ServerPlayer> cir) {
-        if (MWP_FIELDS.challengeWorld == 1 && serverPlayer.getRespawnPosition() == null) {
-            for(ServerPlayer serverplayer : players) {
-                serverplayer.setRespawnPosition(serverPlayer.level().dimension(),new BlockPos((int) 0.5, -63, (int) 0.5), serverplayer.getYRot(), true, false);
-            }
-        } else if (MWP_FIELDS.isSkyblockWorld && serverPlayer.getRespawnPosition() == null) {
-
-            for(ServerPlayer serverplayer : players) {
-                serverplayer.setRespawnPosition(serverPlayer.level().dimension(),new BlockPos((int) 9.5, 67, (int) 7.5), serverplayer.getYRot(), true, false);
-            }
-        } else if (MWP_FIELDS.isOneblockWorld && serverPlayer.getRespawnPosition() == null) {
-
-            for(ServerPlayer serverplayer : players) {
-                serverplayer.setRespawnPosition(serverPlayer.level().dimension(),new BlockPos((int) 0.5, 66, (int) 0.5), serverplayer.getYRot(), true, false);
-            }
-        }
-    }
     @Inject(method = "placeNewPlayer", at = @At("TAIL"))
     private void addProgressionBar(Connection connection, ServerPlayer serverPlayer, CallbackInfo ci) {
         CustomBossEvent existing = serverPlayer.getServer().getCustomBossEvents().get(new ResourceLocation("moreworldpresets", "phase_progress"));

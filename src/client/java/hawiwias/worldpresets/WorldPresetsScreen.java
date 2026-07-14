@@ -90,6 +90,11 @@ public class WorldPresetsScreen extends Screen {
                     parent.getUiState().onChanged();
                     parent.getUiState().setGenerateStructures(false);
                 }
+                if (entry.preset().is(new ResourceLocation("moreworldpresets", "challenge_world")))
+                {
+                    parent.getUiState().onChanged();
+                    parent.getUiState().setGenerateStructures(true);
+                }
                 this.minecraft.setScreen(parent);
             }).width(200);
             if (entry.isAmplified()) {

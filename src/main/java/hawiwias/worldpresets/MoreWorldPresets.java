@@ -1,15 +1,22 @@
 package hawiwias.worldpresets;
 
+import com.mojang.datafixers.util.Pair;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.StructureTags;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.phys.AABB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,6 +27,27 @@ public class MoreWorldPresets implements ModInitializer {
 	public static final String MOD_ID = "moreworldpresets";
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static MinecraftServer INSTANCE;
+
+	public static BlockPos findSafeSpawnNear(ServerLevel level, BlockPos center) {
+		int x = center.getX();
+		int z = center.getZ();
+
+		for (int y = level.getMaxBuildHeight() - 1; y > level.getMinBuildHeight(); y--) {
+			BlockPos ground = new BlockPos(x, y, z);
+			BlockPos above1 = ground.above();
+			BlockPos above2 = ground.above(2);
+
+			boolean groundSolid = !level.getBlockState(ground).isAir() && level.getBlockState(ground).getFluidState().isEmpty();
+			boolean spaceClear = level.getBlockState(above1).isAir() && level.getBlockState(above2).isAir();
+
+			if (groundSolid && spaceClear) {
+				return above1;
+			}
+		}
+
+		int fallbackY = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, x, z);
+		return new BlockPos(x, fallbackY, z);
+	}
 	@Override
 	public void onInitialize() {
 		PlayerBlockBreakEvents.AFTER.register((world, player, blockPos, state, blockEntity) -> {
@@ -53,6 +81,7 @@ public class MoreWorldPresets implements ModInitializer {
 								player.getXRot()
 						);
 					});
+					player.setRespawnPosition(player.level().dimension(),new BlockPos((int) 0.5, -63, (int) 0.5), player.getYRot(), true, false);
 				}
 				if (MWP_FIELDS.isSkyblockWorld) {
 					player.getServer().execute(() -> {
@@ -65,6 +94,7 @@ public class MoreWorldPresets implements ModInitializer {
 								player.getXRot()
 						);
 					});
+					player.setRespawnPosition(player.level().dimension(),new BlockPos((int) 9.5, 67, (int) 7.5), player.getYRot(), true, false);
 				}
 				if (MWP_FIELDS.isSkygridWorld) {
 					player.getServer().execute(() -> {
@@ -88,6 +118,30 @@ public class MoreWorldPresets implements ModInitializer {
 								player.getYRot(),
 								player.getXRot()
 						);
+					});
+					player.setRespawnPosition(player.level().dimension(),new BlockPos((int) 0.5, 66, (int) 0.5), player.getYRot(), true, false);
+				}
+				if (MWP_FIELDS.challengeWorld == 2) {
+					player.getServer().execute(() -> {
+						ServerLevel serverLevel = player.serverLevel();
+						Registry<Structure> structureRegistry = serverLevel.registryAccess().registryOrThrow(Registries.STRUCTURE);
+						HolderSet<Structure> villageStructures = structureRegistry.getOrCreateTag(StructureTags.VILLAGE);
+
+						Pair<BlockPos, Holder<Structure>> result = serverLevel.getChunkSource().getGenerator()
+								.findNearestMapStructure(serverLevel, villageStructures, BlockPos.ZERO, 1000, false);
+						if (result != null) {
+							BlockPos villagePos = result.getFirst();
+							BlockPos safePos = findSafeSpawnNear(serverLevel, villagePos);
+							player.teleportTo(
+									serverLevel,
+									safePos.getX() + 0.5,
+									safePos.getY(),
+									safePos.getZ() + 0.5,
+									player.getYRot(),
+									player.getXRot()
+							);
+							player.setRespawnPosition(serverLevel.dimension(), safePos, player.getYRot(), true, false);
+						}
 					});
 				}
 			}
