@@ -14,11 +14,13 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.StructureTags;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.phys.AABB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,25 +32,42 @@ public class MoreWorldPresets implements ModInitializer {
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
 	public static MinecraftServer INSTANCE;
 
-	public static BlockPos findSafeSpawnNear(ServerLevel level, BlockPos center) {
-		int x = center.getX();
-		int z = center.getZ();
+	public static BlockPos findNearestPathBlock(ServerLevel level, BlockPos center, int maxRadius) {
+		int centerChunkX = center.getX() >> 4;
+		int centerChunkZ = center.getZ() >> 4;
+		int maxChunkRadius = (maxRadius >> 4) + 1;
 
-		for (int y = level.getMaxBuildHeight() - 1; y > level.getMinBuildHeight(); y--) {
-			BlockPos ground = new BlockPos(x, y, z);
-			BlockPos above1 = ground.above();
-			BlockPos above2 = ground.above(2);
+		int minY = 50;
+		int maxY = level.getMaxBuildHeight() - 1;
 
-			boolean groundSolid = !level.getBlockState(ground).isAir() && level.getBlockState(ground).getFluidState().isEmpty();
-			boolean spaceClear = level.getBlockState(above1).isAir() && level.getBlockState(above2).isAir();
+		for (int chunkRadius = 0; chunkRadius <= maxChunkRadius; chunkRadius++) {
+			System.out.println("[MWP] scanning chunk radius " + chunkRadius);
+			for (int dx = -chunkRadius; dx <= chunkRadius; dx++) {
+				for (int dz = -chunkRadius; dz <= chunkRadius; dz++) {
+					if (Math.max(Math.abs(dx), Math.abs(dz)) != chunkRadius) continue;
 
-			if (groundSolid && spaceClear) {
-				return above1;
+					int chunkX = centerChunkX + dx;
+					int chunkZ = centerChunkZ + dz;
+					level.getChunk(chunkX, chunkZ, ChunkStatus.FEATURES, true);
+
+					int baseX = chunkX << 4;
+					int baseZ = chunkZ << 4;
+					for (int x = 0; x < 16; x++) {
+						for (int z = 0; z < 16; z++) {
+							for (int y = maxY; y > minY; y--) {
+								BlockPos pos = new BlockPos(baseX + x, y, baseZ + z);
+								if (level.getBlockState(pos).is(BlockTags.PLANKS)) {
+									System.out.println("[MWP] found plank block at " + pos);
+									return pos;
+								}
+							}
+						}
+					}
+				}
 			}
 		}
-
-		int fallbackY = level.getHeight(net.minecraft.world.level.levelgen.Heightmap.Types.WORLD_SURFACE, x, z);
-		return new BlockPos(x, fallbackY, z);
+		System.out.println("[MWP] no plank block found within radius");
+		return null;
 	}
 	@Override
 	public void onInitialize() {
@@ -126,23 +145,19 @@ public class MoreWorldPresets implements ModInitializer {
 				if (MWP_FIELDS.challengeWorld == 2) {
 					player.getServer().execute(() -> {
 						ServerLevel serverLevel = player.serverLevel();
-						Registry<Structure> structureRegistry = serverLevel.registryAccess().registryOrThrow(Registries.STRUCTURE);
-						HolderSet<Structure> villageStructures = structureRegistry.getOrCreateTag(StructureTags.VILLAGE);
+						BlockPos pathPos = findNearestPathBlock(serverLevel, BlockPos.ZERO, 300);
 
-						Pair<BlockPos, Holder<Structure>> result = serverLevel.getChunkSource().getGenerator()
-								.findNearestMapStructure(serverLevel, villageStructures, BlockPos.ZERO, 1000, false);
-						if (result != null) {
-							BlockPos villagePos = result.getFirst();
-							BlockPos safePos = findSafeSpawnNear(serverLevel, villagePos);
+						if (pathPos != null) {
+							BlockPos spawnPos = pathPos.above();
 							player.teleportTo(
 									serverLevel,
-									safePos.getX() + 0.5,
-									safePos.getY(),
-									safePos.getZ() + 0.5,
+									spawnPos.getX() + 0.5,
+									spawnPos.getY(),
+									spawnPos.getZ() + 0.5,
 									player.getYRot(),
 									player.getXRot()
 							);
-							player.setRespawnPosition(serverLevel.dimension(), safePos, player.getYRot(), true, false);
+							player.setRespawnPosition(serverLevel.dimension(), spawnPos, player.getYRot(), true, false);
 						}
 					});
 				}

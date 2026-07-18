@@ -21,7 +21,7 @@ public class StructurePlacementMixin {
             if ((Object) this instanceof ConcentricRingsStructurePlacement) {
                 return;
             }
-            if (random.nextInt(350) == 1) {
+            if (random.nextInt(300) == 1) {
                 cir.setReturnValue(true);
             } else {
                 cir.setReturnValue(false);
