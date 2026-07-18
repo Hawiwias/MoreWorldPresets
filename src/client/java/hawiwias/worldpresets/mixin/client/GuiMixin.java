@@ -1,10 +1,9 @@
 package hawiwias.worldpresets.mixin.client;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
 import hawiwias.worldpresets.MWP_FIELDS;
 import hawiwias.worldpresets.accessor.TemperatureAccessor;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiGraphics;
@@ -12,26 +11,28 @@ import net.minecraft.resources.ResourceLocation;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Constant;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyConstant;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(Gui.class)
 public class GuiMixin {
 
-    private static final ResourceLocation GUI_TEMPERATURE_BAR = new ResourceLocation("moreworldpresets", "textures/gui/tempbar.png");
-    private static final ResourceLocation GUI_TEMPERATURE_ARROW = new ResourceLocation("moreworldpresets", "textures/gui/temparrow.png");
-    private static final ResourceLocation GUI_TEMPERATURE_BORDER = new ResourceLocation("moreworldpresets", "textures/gui/tempborder.png");
+    private static final ResourceLocation GUI_TEMPERATURE_BAR = ResourceLocation.fromNamespaceAndPath("moreworldpresets", "textures/gui/tempbar.png");
+    private static final ResourceLocation GUI_TEMPERATURE_ARROW = ResourceLocation.fromNamespaceAndPath("moreworldpresets", "textures/gui/temparrow.png");
+    private static final ResourceLocation GUI_TEMPERATURE_BORDER = ResourceLocation.fromNamespaceAndPath("moreworldpresets", "textures/gui/tempborder.png");
     @Shadow
     Minecraft minecraft;
-    @WrapOperation(method = "renderPlayerHealth", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIII)V"))
-    private void hideExtraHungerIcons(GuiGraphics instance, ResourceLocation texture, int x, int y, int u, int v, int width, int height, Operation<Void> original, @Local(ordinal = 14) int i4) {
-        if (MWP_FIELDS.challengeWorld == 3 && i4 >= 5) {
-            return;
+    @ModifyConstant(method = "renderFood", constant = @Constant(intValue = 10))
+    private int hideExtraHungerIcons(int constant) {
+        if (MWP_FIELDS.challengeWorld == 3) {
+            return 5;
         }
-        original.call(instance, texture, x, y, u, v, width, height);
+        return constant;
     }
     @Inject(method = "render", at = @At("TAIL"))
-    private void renderModded(GuiGraphics guiGraphics, float f, CallbackInfo ci) {
+    private void renderModded(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (!minecraft.options.hideGui && minecraft.player != null && MWP_FIELDS.isWinterWorld) {
             renderTemperatureBar(guiGraphics);
         }

@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.levelgen.*;
 import net.minecraft.world.level.levelgen.blending.Blender;
+import net.minecraft.world.level.storage.loot.LootTable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -71,7 +72,7 @@ public class NoiseBasedChunkGeneratorMixin {
         if (MWP_FIELDS.challengeWorld == 1) {
             RegistryAccess registryAccess = MoreWorldPresets.INSTANCE.registryAccess();
             Registry<NoiseGeneratorSettings> registry = registryAccess.registryOrThrow(Registries.NOISE_SETTINGS);
-            settings = registry.getHolderOrThrow(ResourceKey.create(Registries.NOISE_SETTINGS, new ResourceLocation("moreworldpresets", "challenge_world")));
+            settings = registry.getHolderOrThrow(ResourceKey.create(Registries.NOISE_SETTINGS, ResourceLocation.fromNamespaceAndPath("moreworldpresets", "challenge_world")));
             cir.setReturnValue(settings);
         }
     }
@@ -197,35 +198,36 @@ public class NoiseBasedChunkGeneratorMixin {
                     if (randomBlock.is(Blocks.CHEST)) {
                         ChestBlockEntity chestblockentity = new ChestBlockEntity(pos, randomBlock);
                         List<ResourceLocation> chestResourceLocation = List.of(
-                                new ResourceLocation("minecraft", "chests/abandoned_mineshaft"),
-                                new ResourceLocation("minecraft", "chests/ancient_city"),
-                                new ResourceLocation("minecraft", "chests/ancient_city_ice_box"),
-                                new ResourceLocation("minecraft", "chests/bastion_bridge"),
-                                new ResourceLocation("minecraft", "chests/bastion_hoglin_stable"),
-                                new ResourceLocation("minecraft", "chests/bastion_other"),
-                                new ResourceLocation("minecraft", "chests/bastion_treasure"),
-                                new ResourceLocation("minecraft", "chests/buried_treasure"),
-                                new ResourceLocation("minecraft", "chests/desert_pyramid"),
-                                new ResourceLocation("minecraft", "chests/end_city_treasure"),
-                                new ResourceLocation("minecraft", "chests/igloo_chest"),
-                                new ResourceLocation("minecraft", "chests/jungle_temple"),
-                                new ResourceLocation("minecraft", "chests/jungle_temple_dispenser"),
-                                new ResourceLocation("minecraft", "chests/nether_bridge"),
-                                new ResourceLocation("minecraft", "chests/pillager_outpost"),
-                                new ResourceLocation("minecraft", "chests/ruined_portal"),
-                                new ResourceLocation("minecraft", "chests/shipwreck_map"),
-                                new ResourceLocation("minecraft", "chests/shipwreck_supply"),
-                                new ResourceLocation("minecraft", "chests/shipwreck_treasure"),
-                                new ResourceLocation("minecraft", "chests/simple_dungeon"),
-                                new ResourceLocation("minecraft", "chests/spawn_bonus_chest"),
-                                new ResourceLocation("minecraft", "chests/stronghold_corridor"),
-                                new ResourceLocation("minecraft", "chests/stronghold_crossing"),
-                                new ResourceLocation("minecraft", "chests/stronghold_library"),
-                                new ResourceLocation("minecraft", "chests/underwater_ruin_big"),
-                                new ResourceLocation("minecraft", "chests/underwater_ruin_small"),
-                                new ResourceLocation("minecraft", "chests/woodland_mansion")
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/abandoned_mineshaft"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/ancient_city"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/ancient_city_ice_box"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/bastion_bridge"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/bastion_hoglin_stable"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/bastion_other"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/bastion_treasure"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/buried_treasure"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/desert_pyramid"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/end_city_treasure"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/igloo_chest"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/jungle_temple"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/jungle_temple_dispenser"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/nether_bridge"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/pillager_outpost"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/ruined_portal"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/shipwreck_map"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/shipwreck_supply"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/shipwreck_treasure"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/simple_dungeon"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/spawn_bonus_chest"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/stronghold_corridor"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/stronghold_crossing"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/stronghold_library"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/underwater_ruin_big"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/underwater_ruin_small"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/woodland_mansion")
                         );
-                        chestblockentity.setLootTable(chestResourceLocation.get(random.nextInt(chestResourceLocation.size())), random.nextLong());
+                        ResourceKey<LootTable> resourceKey = ResourceKey.create(Registries.LOOT_TABLE, chestResourceLocation.get(random.nextInt(chestResourceLocation.size())));
+                        chestblockentity.setLootTable(resourceKey, random.nextLong());
                         chunkAccess.setBlockEntity(chestblockentity);
                     }
                 }

@@ -20,18 +20,7 @@ import com.mojang.serialization.Dynamic;
 @Mixin(PrimaryLevelData.class)
 public abstract class PrimaryLevelDataMixin {
     @Inject(method = "parse", at = @At("RETURN"))
-    private static <T> void onParse(
-            Dynamic<T> dynamic,
-            DataFixer dataFixer,
-            int i,
-            CompoundTag compoundTag,
-            LevelSettings levelSettings,
-            LevelVersion levelVersion,
-            PrimaryLevelData.SpecialWorldProperty specialWorldProperty,
-            WorldOptions worldOptions,
-            Lifecycle lifecycle,
-            CallbackInfoReturnable<PrimaryLevelData> CIR
-    ) {
+    private static <T> void onParse(Dynamic<T> dynamic, LevelSettings levelSettings, PrimaryLevelData.SpecialWorldProperty specialWorldProperty, WorldOptions worldOptions, Lifecycle lifecycle, CallbackInfoReturnable<PrimaryLevelData> cir) {
         boolean winter = dynamic.get("winterworld").asBoolean(false);
         int challenge = dynamic.get("challengeworld").asInt(0);
         boolean skyblock = dynamic.get("skyblockworld").asBoolean(false);

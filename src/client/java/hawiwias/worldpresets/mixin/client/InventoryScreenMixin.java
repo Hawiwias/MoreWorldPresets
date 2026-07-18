@@ -19,7 +19,7 @@ public class InventoryScreenMixin { ;
     @ModifyArg(method = "renderBg", at = @At(value = "INVOKE", target = "net/minecraft/client/gui/GuiGraphics.blit (Lnet/minecraft/resources/ResourceLocation;IIIIII)V"))
     private ResourceLocation replaceInventoryGui(ResourceLocation resourceLocation) {
         if (MWP_FIELDS.challengeWorld == 3) {
-            return new ResourceLocation("moreworldpresets", "textures/gui/halfinventory.png");
+            return ResourceLocation.fromNamespaceAndPath("moreworldpresets", "textures/gui/halfinventory.png");
         }
         return resourceLocation;
     }

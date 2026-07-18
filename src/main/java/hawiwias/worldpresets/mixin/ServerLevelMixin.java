@@ -5,6 +5,7 @@ import hawiwias.worldpresets.MoreWorldPresets;
 import hawiwias.worldpresets.Phase;
 import hawiwias.worldpresets.PhaseManager;
 import net.minecraft.core.*;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -29,6 +30,7 @@ import net.minecraft.world.level.dimension.DimensionType;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.storage.WritableLevelData;
+import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
@@ -213,7 +215,8 @@ public abstract class ServerLevelMixin extends Level {
                         level.setBlock(pos, Blocks.CHEST.defaultBlockState(), 3 | 16);
                     });
                     ChestBlockEntity chest = (ChestBlockEntity) level.getBlockEntity(pos);
-                    chest.setLootTable(lootTableList.get(random.nextInt(lootTableList.size())), random.nextLong());
+                    ResourceKey<LootTable> resourceKey = ResourceKey.create(Registries.LOOT_TABLE, lootTableList.get(random.nextInt(lootTableList.size())));
+                    chest.setLootTable(resourceKey, random.nextLong());
                 }
             }
             //SET PHASE INFO

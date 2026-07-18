@@ -56,7 +56,7 @@ public abstract class ServerPlayerMixin extends LivingEntity implements Temperat
         player.getServer().execute(() -> {
             StructureTemplateManager templateManager = currentLevel.getStructureManager();
             Optional<StructureTemplate> templateNether =
-                    templateManager.get(new ResourceLocation("moreworldpresets", "skyblock/skyblock_nether"));
+                    templateManager.get(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "skyblock/skyblock_nether"));
 
             templateNether.ifPresent(t -> {
                 Rotation rotation = switch (facing) {

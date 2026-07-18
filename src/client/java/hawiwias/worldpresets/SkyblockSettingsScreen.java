@@ -46,7 +46,7 @@ public class SkyblockSettingsScreen extends Screen {
         gridlayout.visitWidgets(this::addRenderableWidget);
     }
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(graphics);
+        this.renderBackground(graphics, mouseX, mouseY, partialTick);
         graphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 16777215);
         super.render(graphics, mouseX, mouseY, partialTick);
     }

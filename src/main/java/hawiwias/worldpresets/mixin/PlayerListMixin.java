@@ -11,7 +11,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.bossevents.CustomBossEvent;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.players.PlayerList;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import org.spongepowered.asm.mixin.Mixin;
@@ -30,18 +32,18 @@ import static hawiwias.worldpresets.PhaseManager.phaseProgressBar;
 @Mixin(PlayerList.class)
 public class PlayerListMixin {
     @Inject(method = "placeNewPlayer", at = @At("TAIL"))
-    private void addProgressionBar(Connection connection, ServerPlayer serverPlayer, CallbackInfo ci) {
-        CustomBossEvent existing = serverPlayer.getServer().getCustomBossEvents().get(new ResourceLocation("moreworldpresets", "phase_progress"));
+    private void addProgressionBar(Connection connection, ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
+        CustomBossEvent existing = serverPlayer.getServer().getCustomBossEvents().get(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "phase_progress"));
         if (!MWP_FIELDS.isOneblockWorld) return;
         if (existing != null) {
             phaseProgressBar = existing;
         } else {
-            phaseProgressBar = serverPlayer.getServer().getCustomBossEvents().create(new ResourceLocation("moreworldpresets", "phase_progress"), Component.literal("23131"));
+            phaseProgressBar = serverPlayer.getServer().getCustomBossEvents().create(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "phase_progress"), Component.literal("23131"));
         }
         PhaseManager.phaseProgressBar.addPlayer(serverPlayer);
     }
     @Inject(method = "respawn", at = @At("TAIL"))
-    private void replaceSpawn(ServerPlayer serverPlayer, boolean bl, CallbackInfoReturnable<ServerPlayer> cir) {
+    private void replaceSpawn(ServerPlayer serverPlayer, boolean bl, Entity.RemovalReason removalReason, CallbackInfoReturnable<ServerPlayer> cir) {
         ServerPlayer respawnedPlayer = cir.getReturnValue();
         if (MWP_FIELDS.isWinterWorld  && respawnedPlayer != null) {
             ((TemperatureAccessor) respawnedPlayer).setTemperature(0.0f);

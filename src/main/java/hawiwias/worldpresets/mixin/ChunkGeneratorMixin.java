@@ -48,19 +48,19 @@ public class ChunkGeneratorMixin {
                     case 1:
                         if (worldGenLevel.getLevel().dimension() == ServerLevel.OVERWORLD) {
                             //the latest version nether + sand island
-                            template = templateManager.get(new ResourceLocation("moreworldpresets", "skyblock/skyblock2_1"));
+                            template = templateManager.get(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "skyblock/skyblock2_1"));
                         }
                         break;
                     case 2:
                         if (worldGenLevel.getLevel().dimension() == ServerLevel.OVERWORLD) {
                             //3x3 version
-                            template = templateManager.get(new ResourceLocation("moreworldpresets", "skyblock/skyblock3x3"));
+                            template = templateManager.get(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "skyblock/skyblock3x3"));
                             break;
                         }
                     case 3:
                         if (worldGenLevel.getLevel().dimension() == ServerLevel.OVERWORLD) {
                             //original skyblock
-                            template = templateManager.get(new ResourceLocation("moreworldpresets", "skyblock/skyblock"));
+                            template = templateManager.get(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "skyblock/skyblock"));
                             break;
                         }
                 }
@@ -76,7 +76,7 @@ public class ChunkGeneratorMixin {
             }
             //generate sand island
             if (chunkPos.x == -5 && chunkPos.z == -1 && MWP_FIELDS.SkyblockWorld != 3 && worldGenLevel.getLevel().dimension() == ServerLevel.OVERWORLD) {
-                template = templateManager.get(new ResourceLocation("moreworldpresets", "skyblock/sand_island"));
+                template = templateManager.get(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "skyblock/sand_island"));
                 template.ifPresent(t -> {
                     StructurePlaceSettings settings = new StructurePlaceSettings()
                             .setMirror(Mirror.NONE)

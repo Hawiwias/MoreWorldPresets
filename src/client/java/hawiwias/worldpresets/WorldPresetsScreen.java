@@ -59,7 +59,7 @@ public class WorldPresetsScreen extends Screen {
     }
     protected void init() {
         boolean isChallengeWorldActive = parent.getUiState().getWorldType().preset()
-                .is(new ResourceLocation("moreworldpresets", "challenge_world"));
+                .is(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "challenge_world"));
         challengeWorldVariant = isChallengeWorldActive ? MWP_FIELDS.challengeWorld : 0;
         GridLayout gridlayout = new GridLayout();
         gridlayout.setPosition(this.width / 2 - 210, 50);
@@ -67,7 +67,7 @@ public class WorldPresetsScreen extends Screen {
         GridLayout.RowHelper gridlayout$rowhelper = gridlayout.createRowHelper(2);
         List<WorldCreationUiState.WorldTypeEntry> presetList = parent.getUiState().getAltPresetList();
         presetList.forEach(entry -> {
-            if (entry.preset().is(new ResourceLocation("moreworldpresets", "challenge_world"))) {
+            if (entry.preset().is(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "challenge_world"))) {
                 CycleButton<Integer> cycleButton = CycleButton.<Integer>builder(this::challengeWorldLabel)
                         .withValues(0, 1, 2, 3, 4, 5)
                         .withInitialValue(challengeWorldVariant)
@@ -92,17 +92,17 @@ public class WorldPresetsScreen extends Screen {
             Component label = entry.describePreset();
 
             String presetId = null;
-            if (entry.preset().is(new ResourceLocation("moreworldpresets", "skyblock_world"))) presetId = "skyblock";
-            else if (entry.preset().is(new ResourceLocation("moreworldpresets", "skygrid_world"))) presetId = "skygrid";
-            else if (entry.preset().is(new ResourceLocation("moreworldpresets", "oneblock_world"))) presetId = "oneblock";
-            else if (entry.preset().is(new ResourceLocation("moreworldpresets", "winter_world"))) presetId = "winter";
-            else if (entry.preset().is(new ResourceLocation("minecraft", "flat"))) presetId = "flat";
-            else if (entry.preset().is(new ResourceLocation("minecraft", "normal"))) presetId = "normal";
-            else if (entry.preset().is(new ResourceLocation("minecraft", "amplified"))) presetId = "amplified";
-            else if (entry.preset().is(new ResourceLocation("minecraft", "large_biomes"))) presetId = "large_biomes";
-            else if (entry.preset().is(new ResourceLocation("minecraft", "single_biome_surface"))) presetId = "single_biome";
-            else if (entry.preset().is(new ResourceLocation("minecraft", "debug_all_block_states"))) presetId = "debug";
-            else if (entry.preset().is(new ResourceLocation("moreworldpresets", "floating_islands"))) presetId = "floating_islands";
+            if (entry.preset().is(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "skyblock_world"))) presetId = "skyblock";
+            else if (entry.preset().is(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "skygrid_world"))) presetId = "skygrid";
+            else if (entry.preset().is(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "oneblock_world"))) presetId = "oneblock";
+            else if (entry.preset().is(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "winter_world"))) presetId = "winter";
+            else if (entry.preset().is(ResourceLocation.fromNamespaceAndPath("minecraft", "flat"))) presetId = "flat";
+            else if (entry.preset().is(ResourceLocation.fromNamespaceAndPath("minecraft", "normal"))) presetId = "normal";
+            else if (entry.preset().is(ResourceLocation.fromNamespaceAndPath("minecraft", "amplified"))) presetId = "amplified";
+            else if (entry.preset().is(ResourceLocation.fromNamespaceAndPath("minecraft", "large_biomes"))) presetId = "large_biomes";
+            else if (entry.preset().is(ResourceLocation.fromNamespaceAndPath("minecraft", "single_biome_surface"))) presetId = "single_biome";
+            else if (entry.preset().is(ResourceLocation.fromNamespaceAndPath("minecraft", "debug_all_block_states"))) presetId = "debug";
+            else if (entry.preset().is(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "floating_islands"))) presetId = "floating_islands";
             if (presetId != null) {
                 MutableComponent gradient = GradientTextUtil.forPresetId(presetId);
                 if (gradient != null) {
@@ -111,32 +111,32 @@ public class WorldPresetsScreen extends Screen {
             }
             Button.Builder builder = Button.builder(label, (button) -> {
                 parent.getUiState().setWorldType(entry);
-                if (entry.preset().is(new ResourceLocation("minecraft", "flat")))
+                if (entry.preset().is(ResourceLocation.fromNamespaceAndPath("minecraft", "flat")))
                 {
                     parent.getUiState().onChanged();
                     PresetEditor presetEditor = parent.getUiState().getPresetEditor();
                     this.minecraft.setScreen(presetEditor.createEditScreen(parent, parent.getUiState().getSettings()));
                     return;
                 }
-                if (entry.preset().is(new ResourceLocation("minecraft", "single_biome_surface")))
+                if (entry.preset().is(ResourceLocation.fromNamespaceAndPath("minecraft", "single_biome_surface")))
                 {
                     parent.getUiState().onChanged();
                     PresetEditor presetEditor = parent.getUiState().getPresetEditor();
                     this.minecraft.setScreen(presetEditor.createEditScreen(parent, parent.getUiState().getSettings()));
                     return;
                 }
-                if (entry.preset().is(new ResourceLocation("moreworldpresets", "skyblock_world")))
+                if (entry.preset().is(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "skyblock_world")))
                 {
                     parent.getUiState().onChanged();
                     this.minecraft.setScreen(new SkyblockSettingsScreen(this.parent));
                     return;
                 }
-                if (entry.preset().is(new ResourceLocation("moreworldpresets", "oneblock_world")))
+                if (entry.preset().is(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "oneblock_world")))
                 {
                     parent.getUiState().onChanged();
                     parent.getUiState().setGenerateStructures(false);
                 }
-                if (entry.preset().is(new ResourceLocation("moreworldpresets", "challenge_world")))
+                if (entry.preset().is(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "challenge_world")))
                 {
                     parent.getUiState().onChanged();
                     parent.getUiState().setGenerateStructures(true);
@@ -167,7 +167,7 @@ public class WorldPresetsScreen extends Screen {
     }
 
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(graphics);
+        this.renderBackground(graphics, mouseX, mouseY, partialTick);
         graphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 16777215);
         super.render(graphics, mouseX, mouseY, partialTick);
     }

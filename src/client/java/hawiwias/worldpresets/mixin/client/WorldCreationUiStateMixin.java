@@ -18,11 +18,11 @@ public abstract class WorldCreationUiStateMixin {
         if (entry.preset() != null) {
             entry.preset().unwrapKey().ifPresent(key -> {
                 MWP_FIELDS.presetKey = key.location().toString(); // NEW — store raw preset id
-                MWP_FIELDS.isWinterWorld = key.location().equals(new ResourceLocation("moreworldpresets", "winter_world"));
-                MWP_FIELDS.challengeWorld = key.location().equals(new ResourceLocation("moreworldpresets", "challenge_world")) ? MWP_FIELDS.challengeWorld : 0;
-                MWP_FIELDS.isSkyblockWorld = key.location().equals(new ResourceLocation("moreworldpresets", "skyblock_world"));
-                MWP_FIELDS.isOneblockWorld = key.location().equals(new ResourceLocation("moreworldpresets", "oneblock_world"));
-                MWP_FIELDS.isSkygridWorld = key.location().equals(new ResourceLocation("moreworldpresets", "skygrid_world"));
+                MWP_FIELDS.isWinterWorld = key.location().equals(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "winter_world"));
+                MWP_FIELDS.challengeWorld = key.location().equals(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "challenge_world")) ? MWP_FIELDS.challengeWorld : 0;
+                MWP_FIELDS.isSkyblockWorld = key.location().equals(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "skyblock_world"));
+                MWP_FIELDS.isOneblockWorld = key.location().equals(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "oneblock_world"));
+                MWP_FIELDS.isSkygridWorld = key.location().equals(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "skygrid_world"));
             });
         }
         onChanged();

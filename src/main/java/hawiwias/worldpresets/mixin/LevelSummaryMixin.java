@@ -2,6 +2,7 @@ package hawiwias.worldpresets.mixin;
 
 import hawiwias.worldpresets.PresetLabelAccessor;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtAccounter;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.world.level.storage.LevelSummary;
 import org.spongepowered.asm.mixin.Final;
@@ -29,7 +30,7 @@ public class LevelSummaryMixin implements PresetLabelAccessor {
             try {
                 File levelDatFile = this.icon.getParent().resolve("level.dat").toFile();
                 if (levelDatFile.exists()) {
-                    CompoundTag root = NbtIo.readCompressed(levelDatFile);
+                    CompoundTag root = NbtIo.readCompressed(levelDatFile.toPath(), NbtAccounter.unlimitedHeap());
                     CompoundTag data = root.getCompound("Data");
 
                     if (data.getBoolean("winterworld")) moreworldpresets$presetId = "winter";
