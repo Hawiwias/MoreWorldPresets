@@ -1,5 +1,8 @@
 package hawiwias.worldpresets.mixin.client;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import hawiwias.worldpresets.MWP_FIELDS;
 import hawiwias.worldpresets.accessor.TemperatureAccessor;
 import net.minecraft.client.Minecraft;
@@ -18,12 +21,19 @@ public class GuiMixin {
     private static final ResourceLocation GUI_TEMPERATURE_BAR = new ResourceLocation("moreworldpresets", "textures/gui/tempbar.png");
     private static final ResourceLocation GUI_TEMPERATURE_ARROW = new ResourceLocation("moreworldpresets", "textures/gui/temparrow.png");
     private static final ResourceLocation GUI_TEMPERATURE_BORDER = new ResourceLocation("moreworldpresets", "textures/gui/tempborder.png");
-    @Shadow Minecraft minecraft;
-
+    @Shadow
+    Minecraft minecraft;
+    @WrapOperation(method = "renderPlayerHealth", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/GuiGraphics;blit(Lnet/minecraft/resources/ResourceLocation;IIIIII)V"))
+    private void hideExtraHungerIcons(GuiGraphics instance, ResourceLocation texture, int x, int y, int u, int v, int width, int height, Operation<Void> original, @Local(ordinal = 14) int i4) {
+        if (MWP_FIELDS.challengeWorld == 3 && i4 >= 5) {
+            return;
+        }
+        original.call(instance, texture, x, y, u, v, width, height);
+    }
     @Inject(method = "render", at = @At("TAIL"))
     private void renderModded(GuiGraphics guiGraphics, float f, CallbackInfo ci) {
         if (!minecraft.options.hideGui && minecraft.player != null && MWP_FIELDS.isWinterWorld) {
-                renderTemperatureBar(guiGraphics);
+            renderTemperatureBar(guiGraphics);
         }
     }
 
@@ -60,7 +70,7 @@ public class GuiMixin {
         int usableMinX = x + borderPaddingLeft;
         int usableMaxX = x + barWidth - borderPaddingRight;
 
-        int arrowCenterX = usableMinX + (int)((usableMaxX - usableMinX) * percent);
+        int arrowCenterX = usableMinX + (int) ((usableMaxX - usableMinX) * percent);
         int arrowX = arrowCenterX - arrowSize / 2;
 
         arrowX = Math.max(usableMinX, Math.min(usableMaxX - arrowSize, arrowX));
@@ -70,5 +80,4 @@ public class GuiMixin {
         guiGraphics.blit(GUI_TEMPERATURE_ARROW, arrowX, arrowY, arrowSize, arrowSize, 0, 0, 128, 128, 128, 128);
         guiGraphics.blit(GUI_TEMPERATURE_BORDER, x, y, barWidth, barHeight, 0, 0, 235, 28, 235, 28);
     }
-
 }

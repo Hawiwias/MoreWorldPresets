@@ -10,11 +10,14 @@
     "FogRendererMixin",
     "FoliageColorMixin",
     "GuiMixin",
+    "InventoryScreenMixin",
     "LevelRendererMixin",
+    "LocalPlayerMixin",
     "SwitchGridDisabler",
-    "WorldCreationUiStateMixin"
+    "WorldCreationUiStateMixin",
+    "WorldListEntryMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-	}
+  }
 }

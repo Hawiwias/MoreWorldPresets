@@ -15,6 +15,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.StructureTags;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.phys.AABB;
@@ -142,6 +144,16 @@ public class MoreWorldPresets implements ModInitializer {
 							);
 							player.setRespawnPosition(serverLevel.dimension(), safePos, player.getYRot(), true, false);
 						}
+					});
+				}
+				if (MWP_FIELDS.challengeWorld == 3) {
+					player.getServer().execute(() -> {
+						AttributeInstance maxHealthAttr = player.getAttribute(Attributes.MAX_HEALTH);
+						if (maxHealthAttr != null) {
+							maxHealthAttr.setBaseValue(10.0);
+						}
+						player.setHealth((float) player.getMaxHealth());
+						player.getFoodData().setFoodLevel(10);
 					});
 				}
 			}

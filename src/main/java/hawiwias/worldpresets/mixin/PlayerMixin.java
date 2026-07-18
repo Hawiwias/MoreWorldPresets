@@ -1,12 +1,13 @@
 package hawiwias.worldpresets.mixin;
 
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import hawiwias.worldpresets.MWP_FIELDS;
 import hawiwias.worldpresets.accessor.TemperatureAccessor;
 import hawiwias.worldpresets.accessor.heatValues;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
@@ -17,15 +18,20 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static net.minecraft.world.level.Level.*;
 
 @Mixin(Player.class)
 public abstract class PlayerMixin extends LivingEntity implements TemperatureAccessor {
+    @Shadow
+    public float bob;
+    Player player = (Player) (Object) this;
     @Unique
     Block closestBlock;
     @Unique
@@ -69,6 +75,7 @@ public abstract class PlayerMixin extends LivingEntity implements TemperatureAcc
         }
         return new heatValues(20.0f, 1.0f);
     }
+
     @Unique
     private float coldMeter = 0f; // 0-100
 
@@ -119,7 +126,7 @@ public abstract class PlayerMixin extends LivingEntity implements TemperatureAcc
 
 
         boolean shouldFreeze = MWP_FIELDS.isWinterWorld && !nearHeatSource && (canSeeSky || inWater) && temp < -10f;
-        boolean shouldWarm  = nearHeatSource || temp > -8f;
+        boolean shouldWarm = nearHeatSource || temp > -8f;
 
         if (shouldFreeze) {
             coldMeter = Math.min(100f, coldMeter + 1.6f);
@@ -153,7 +160,6 @@ public abstract class PlayerMixin extends LivingEntity implements TemperatureAcc
 
     @Inject(method = "tick", at = @At("HEAD"))
     public void temperatureHandling(CallbackInfo ci) {
-        Player player = (Player) (Object) this;
         if (MWP_FIELDS.isWinterWorld && player.level().dimension().equals(OVERWORLD)) {
             long time = player.level().getDayTime() % 24000;
             float minTemp = -20.0f;
@@ -201,14 +207,7 @@ public abstract class PlayerMixin extends LivingEntity implements TemperatureAcc
         if (MWP_FIELDS.isWinterWorld && player.level().dimension().equals(NETHER)) ambientTemp = 30.0f;
         if (MWP_FIELDS.isWinterWorld && player.level().dimension().equals(END)) ambientTemp = 9.0f;
     }
-    //TODO: Make this work
-    @Inject(method = "respawn", at = @At("TAIL"))
-    private void onRespawn(CallbackInfo ci) {
-        ambientTemp = 0.0f;
-        this.coldMeter = 0f;
-        this.frozenProgress = 0f;
-        this.setTicksFrozen(0);
-    }
+
     @Inject(method = "addAdditionalSaveData", at = @At("HEAD"))
     private void nbtSaveTemperature(CompoundTag compoundTag, CallbackInfo ci) {
         compoundTag.putFloat("temperature", getTemperature());
@@ -229,5 +228,14 @@ public abstract class PlayerMixin extends LivingEntity implements TemperatureAcc
             coldMeter = compoundTag.contains("coldMeter")
                     ? compoundTag.getFloat("coldMeter") : 0f;
         }
+    }
+    @WrapOperation(method = "maybeBackOffFromEdge", at = @At(value = "INVOKE", target = "net/minecraft/world/entity/player/Player.isStayingOnGroundSurface ()Z"))
+    private boolean restrictCrouchingEdge(Player instance, Operation<Boolean> original) {
+        return original.call(instance) && MWP_FIELDS.challengeWorld != 3;
+    }
+
+    @WrapOperation(method = "updatePlayerPose", at = @At(value = "INVOKE", target = "net/minecraft/world/entity/player/Player.isShiftKeyDown ()Z"))
+    private boolean restrictCrouching(Player instance, Operation<Boolean> original) {
+        return original.call(instance) && MWP_FIELDS.challengeWorld != 3;
     }
 }

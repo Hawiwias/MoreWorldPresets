@@ -32,13 +32,27 @@ public abstract class PrimaryLevelDataMixin {
             Lifecycle lifecycle,
             CallbackInfoReturnable<PrimaryLevelData> CIR
     ) {
-        MWP_FIELDS.isWinterWorld = dynamic.get("winterworld").asBoolean(false);
-        MWP_FIELDS.challengeWorld = dynamic.get("challengeworld").asInt(0);
+        boolean winter = dynamic.get("winterworld").asBoolean(false);
+        int challenge = dynamic.get("challengeworld").asInt(0);
+        boolean skyblock = dynamic.get("skyblockworld").asBoolean(false);
+        boolean oneblock = dynamic.get("oneblockworld").asBoolean(false);
+        boolean skygrid = dynamic.get("skygridworld").asBoolean(false);
+
+        String presetLabel = "Vanilla";
+        if (winter) presetLabel = "Winter World";
+        else if (challenge > 0) presetLabel = "Challenge World " + challenge;
+        else if (skyblock) presetLabel = "Skyblock";
+        else if (oneblock) presetLabel = "Oneblock";
+        else if (skygrid) presetLabel = "Skygrid";
+
+
+        MWP_FIELDS.isWinterWorld = winter;
+        MWP_FIELDS.challengeWorld = challenge;
         PhaseManager.currentPhaseProgress = dynamic.get("currentPhaseProgress").asInt(0);
         PhaseManager.currentPhaseIndex = dynamic.get("currentPhaseIndex").asInt(0);
-        MWP_FIELDS.isSkyblockWorld = dynamic.get("skyblockworld").asBoolean(false);
-        MWP_FIELDS.isOneblockWorld = dynamic.get("oneblockworld").asBoolean(false);
-        MWP_FIELDS.isSkygridWorld = dynamic.get("skygridworld").asBoolean(false);
+        MWP_FIELDS.isSkyblockWorld = skyblock;
+        MWP_FIELDS.isOneblockWorld = oneblock;
+        MWP_FIELDS.isSkygridWorld = skygrid;
         for (int j = 0; j < PhaseManager.phases.size(); j++) {
             PhaseManager.phases.get(j).unlocked = dynamic.get("phase_unlocked_" + j).asBoolean(j == 0);
         }
@@ -46,6 +60,7 @@ public abstract class PrimaryLevelDataMixin {
 
     @Inject(method = "setTagData", at = @At("TAIL"))
     private void onSetTagData(RegistryAccess registryAccess, CompoundTag tag, CompoundTag playerTag, CallbackInfo ci) {
+        tag.putString("worldPresetKey", MWP_FIELDS.presetKey);
         tag.putBoolean("winterworld", MWP_FIELDS.isWinterWorld);
         tag.putInt("challengeworld", MWP_FIELDS.challengeWorld);
         tag.putInt("currentPhaseProgress", PhaseManager.currentPhaseProgress);

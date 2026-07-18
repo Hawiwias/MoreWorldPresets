@@ -1,6 +1,7 @@
 package hawiwias.worldpresets.mixin;
 
 
+import com.llamalad7.mixinextras.sugar.Local;
 import hawiwias.worldpresets.MWP_FIELDS;
 import hawiwias.worldpresets.MoreWorldPresets;
 import net.minecraft.core.*;
@@ -27,6 +28,7 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.util.List;
@@ -47,6 +49,20 @@ public class NoiseBasedChunkGeneratorMixin {
 
     public NoiseBasedChunkGeneratorMixin(Supplier<Aquifer.FluidPicker> globalFluidPicker) {
         this.globalFluidPicker = globalFluidPicker;
+    }
+    @ModifyVariable(method = "doFill", at = @At("STORE"), ordinal = 6)
+    private int modifyI1(int originalI1, @Local(ordinal = 4) int k) {
+        if (MWP_FIELDS.challengeWorld == 4) {
+            return 11 / k;
+        }
+        return originalI1;
+    }
+    @ModifyVariable(method = "doFill", at = @At("STORE"), ordinal = 7)
+    private int modifyJ1(int originalJ1, @Local(ordinal = 4) int k) {
+        if (MWP_FIELDS.challengeWorld == 4) {
+            return 11 / k;
+        }
+        return originalJ1;
     }
 
     @Inject(method = "generatorSettings", at = @At("HEAD"), cancellable = true)
@@ -83,7 +99,6 @@ public class NoiseBasedChunkGeneratorMixin {
                             BlockTags.OVERWORLD_NATURAL_LOGS,
                             BlockTags.AZALEA_ROOT_REPLACEABLE
                     );
-
                     //VEGETATION LOGIC 1 IN A 6
                     if (random.nextInt(6) == 1)
                     {

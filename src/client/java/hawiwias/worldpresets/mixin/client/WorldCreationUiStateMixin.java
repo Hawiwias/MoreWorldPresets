@@ -15,14 +15,11 @@ public abstract class WorldCreationUiStateMixin {
     @Shadow public abstract void onChanged();
     @Inject(method = "setWorldType", at = @At("TAIL"))
     private void onSetWorldType(WorldCreationUiState.WorldTypeEntry entry, CallbackInfo ci) {
-        final RandomSource random = RandomSource.create();
         if (entry.preset() != null) {
             entry.preset().unwrapKey().ifPresent(key -> {
+                MWP_FIELDS.presetKey = key.location().toString(); // NEW — store raw preset id
                 MWP_FIELDS.isWinterWorld = key.location().equals(new ResourceLocation("moreworldpresets", "winter_world"));
-                boolean isChallengeWorld = key.location().equals(new ResourceLocation("moreworldpresets", "challenge_world"));
-                if (!isChallengeWorld) {
-                    MWP_FIELDS.challengeWorld = 0;
-                }
+                MWP_FIELDS.challengeWorld = key.location().equals(new ResourceLocation("moreworldpresets", "challenge_world")) ? MWP_FIELDS.challengeWorld : 0;
                 MWP_FIELDS.isSkyblockWorld = key.location().equals(new ResourceLocation("moreworldpresets", "skyblock_world"));
                 MWP_FIELDS.isOneblockWorld = key.location().equals(new ResourceLocation("moreworldpresets", "oneblock_world"));
                 MWP_FIELDS.isSkygridWorld = key.location().equals(new ResourceLocation("moreworldpresets", "skygrid_world"));
