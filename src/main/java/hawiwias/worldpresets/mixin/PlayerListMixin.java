@@ -1,11 +1,8 @@
 package hawiwias.worldpresets.mixin;
 
-import com.google.common.collect.Lists;
 import hawiwias.worldpresets.MWP_FIELDS;
-import hawiwias.worldpresets.MoreWorldPresets;
 import hawiwias.worldpresets.PhaseManager;
 import hawiwias.worldpresets.accessor.TemperatureAccessor;
-import net.minecraft.core.BlockPos;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -17,14 +14,10 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-
-import java.util.List;
 
 import static hawiwias.worldpresets.PhaseManager.phaseProgressBar;
 

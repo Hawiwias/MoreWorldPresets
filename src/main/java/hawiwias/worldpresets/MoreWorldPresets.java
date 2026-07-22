@@ -41,7 +41,6 @@ public class MoreWorldPresets implements ModInitializer {
 		int maxY = level.getMaxBuildHeight() - 1;
 
 		for (int chunkRadius = 0; chunkRadius <= maxChunkRadius; chunkRadius++) {
-			System.out.println("[MWP] scanning chunk radius " + chunkRadius);
 			for (int dx = -chunkRadius; dx <= chunkRadius; dx++) {
 				for (int dz = -chunkRadius; dz <= chunkRadius; dz++) {
 					if (Math.max(Math.abs(dx), Math.abs(dz)) != chunkRadius) continue;
@@ -57,7 +56,6 @@ public class MoreWorldPresets implements ModInitializer {
 							for (int y = maxY; y > minY; y--) {
 								BlockPos pos = new BlockPos(baseX + x, y, baseZ + z);
 								if (level.getBlockState(pos).is(BlockTags.PLANKS)) {
-									System.out.println("[MWP] found plank block at " + pos);
 									return pos;
 								}
 							}
@@ -66,7 +64,6 @@ public class MoreWorldPresets implements ModInitializer {
 				}
 			}
 		}
-		System.out.println("[MWP] no plank block found within radius");
 		return null;
 	}
 	@Override
@@ -90,77 +87,91 @@ public class MoreWorldPresets implements ModInitializer {
 		});
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			ServerPlayer player = handler.getPlayer();
-			if (player.getStats().getValue(Stats.CUSTOM.get(Stats.PLAY_TIME)) == 0) {
-				if (MWP_FIELDS.challengeWorld == 1) {
-					player.getServer().execute(() -> {
-						player.teleportTo(
-								player.serverLevel(),
-								0.500,
-								-63,
-								0.500,
-								player.getYRot(),
-								player.getXRot()
-						);
-					});
-					player.setRespawnPosition(player.level().dimension(),new BlockPos((int) 0.5, -63, (int) 0.5), player.getYRot(), true, false);
-				}
-				if (MWP_FIELDS.isSkyblockWorld) {
-					player.getServer().execute(() -> {
-						player.teleportTo(
-								player.serverLevel(),
-								9.500,
-								67,
-								7.500,
-								player.getYRot(),
-								player.getXRot()
-						);
-					});
-					player.setRespawnPosition(player.level().dimension(),new BlockPos((int) 9.5, 67, (int) 7.5), player.getYRot(), true, false);
-				}
-				if (MWP_FIELDS.isSkygridWorld) {
-					player.getServer().execute(() -> {
-						player.teleportTo(
-								player.serverLevel(),
-								0.500,
-								81,
-								0.500,
-								player.getYRot(),
-								player.getXRot()
-						);
-					});
-				}
-				if (MWP_FIELDS.isOneblockWorld) {
-					player.getServer().execute(() -> {
-						player.teleportTo(
-								player.serverLevel(),
-								0.500,
-								66,
-								0.500,
-								player.getYRot(),
-								player.getXRot()
-						);
-					});
-					player.setRespawnPosition(player.level().dimension(),new BlockPos((int) 0.5, 66, (int) 0.5), player.getYRot(), true, false);
-				}
-				if (MWP_FIELDS.challengeWorld == 2) {
-					player.getServer().execute(() -> {
-						ServerLevel serverLevel = player.serverLevel();
-						BlockPos pathPos = findNearestPathBlock(serverLevel, BlockPos.ZERO, 300);
-
-						if (pathPos != null) {
-							BlockPos spawnPos = pathPos.above();
+			if(player.level().dimension().equals(ServerLevel.OVERWORLD)) {
+				if (player.getStats().getValue(Stats.CUSTOM.get(Stats.PLAY_TIME)) == 0) {
+					if (MWP_FIELDS.challengeWorld == 1) {
+						player.getServer().execute(() -> {
 							player.teleportTo(
-									serverLevel,
-									spawnPos.getX() + 0.5,
-									spawnPos.getY(),
-									spawnPos.getZ() + 0.5,
+									player.serverLevel(),
+									0.500,
+									-63,
+									0.500,
 									player.getYRot(),
 									player.getXRot()
 							);
-							player.setRespawnPosition(serverLevel.dimension(), spawnPos, player.getYRot(), true, false);
+						});
+						player.setRespawnPosition(player.level().dimension(), new BlockPos((int) 0.5, -63, (int) 0.5), player.getYRot(), true, false);
+					}
+					if (MWP_FIELDS.isSkyblockWorld) {
+						double x;
+						double y;
+						double z;
+						if (MWP_FIELDS.SkyblockWorld == 3) {
+							x = 7.5;
+							y = 67;
+							z = 10.5;
+						} else {
+							x = 9.5;
+							y = 67;
+							z = 7.5;
 						}
-					});
-				}
+						player.getServer().execute(() -> {
+							player.teleportTo(
+									player.serverLevel(),
+									x,
+									y,
+									z,
+									player.getYRot(),
+									player.getXRot()
+							);
+						});
+						player.setRespawnPosition(player.level().dimension(), new BlockPos((int) x, (int) y, (int) z), player.getYRot(), true, false);
+					}
+					if (MWP_FIELDS.isSkygridWorld) {
+						player.getServer().execute(() -> {
+							player.teleportTo(
+									player.serverLevel(),
+									0.500,
+									81,
+									0.500,
+									player.getYRot(),
+									player.getXRot()
+							);
+						});
+					}
+					if (MWP_FIELDS.isOneblockWorld) {
+						player.getServer().execute(() -> {
+							player.teleportTo(
+									player.serverLevel(),
+									0.500,
+									66,
+									0.500,
+									player.getYRot(),
+									player.getXRot()
+							);
+						});
+						player.setRespawnPosition(player.level().dimension(), new BlockPos((int) 0.5, 66, (int) 0.5), player.getYRot(), true, false);
+					}
+					if (MWP_FIELDS.challengeWorld == 2) {
+						player.getServer().execute(() -> {
+							ServerLevel serverLevel = player.serverLevel();
+							BlockPos pathPos = findNearestPathBlock(serverLevel, BlockPos.ZERO, 300);
+
+							if (pathPos != null) {
+								BlockPos spawnPos = pathPos.above();
+								player.teleportTo(
+										serverLevel,
+										spawnPos.getX() + 0.5,
+										spawnPos.getY(),
+										spawnPos.getZ() + 0.5,
+										player.getYRot(),
+										player.getXRot()
+								);
+								player.setRespawnPosition(serverLevel.dimension(), spawnPos, player.getYRot(), true, false);
+							}
+						});
+					}
+			}
 				if (MWP_FIELDS.challengeWorld == 3) {
 					player.getServer().execute(() -> {
 						AttributeInstance maxHealthAttr = player.getAttribute(Attributes.MAX_HEALTH);

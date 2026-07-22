@@ -11,6 +11,7 @@ import java.util.List;
 
 public class MWP_FIELDS extends WorldGenRegion
 {
+    public static boolean skyblockNetherIslandGenerated = false;
     public static String presetKey = "minecraft:normal";
     public static boolean isWinterWorld = false;
     public static boolean isSkyblockWorld = false;
