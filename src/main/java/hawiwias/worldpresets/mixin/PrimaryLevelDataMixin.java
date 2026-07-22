@@ -32,6 +32,7 @@ public abstract class PrimaryLevelDataMixin {
             Lifecycle lifecycle,
             CallbackInfoReturnable<PrimaryLevelData> CIR
     ) {
+        MWP_FIELDS.skyblockNetherIslandGenerated = dynamic.get("skyblockNetherIslandGenerated").asBoolean(false);
         boolean winter = dynamic.get("winterworld").asBoolean(false);
         int challenge = dynamic.get("challengeworld").asInt(0);
         boolean skyblock = dynamic.get("skyblockworld").asBoolean(false);
@@ -60,6 +61,7 @@ public abstract class PrimaryLevelDataMixin {
 
     @Inject(method = "setTagData", at = @At("TAIL"))
     private void onSetTagData(RegistryAccess registryAccess, CompoundTag tag, CompoundTag playerTag, CallbackInfo ci) {
+        tag.putBoolean("skyblockNetherIslandGenerated", MWP_FIELDS.skyblockNetherIslandGenerated);
         tag.putString("worldPresetKey", MWP_FIELDS.presetKey);
         tag.putBoolean("winterworld", MWP_FIELDS.isWinterWorld);
         tag.putInt("challengeworld", MWP_FIELDS.challengeWorld);

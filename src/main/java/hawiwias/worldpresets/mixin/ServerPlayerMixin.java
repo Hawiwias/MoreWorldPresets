@@ -6,6 +6,7 @@ import hawiwias.worldpresets.accessor.TemperatureAccessor;
 import net.minecraft.SystemReport;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -38,7 +39,7 @@ public abstract class ServerPlayerMixin extends LivingEntity implements Temperat
     protected ServerPlayerMixin(EntityType<? extends LivingEntity> entityType, Level level) {
         super(entityType, level);
     }
-    private static final Set<UUID> hasPlacedNether = new java.util.HashSet<>();
+
     //SKYBLOCK NETHER ISLAND GENERATION
     @Inject(method = "triggerDimensionChangeTriggers", at = @At("TAIL"))
     private void onDimensionChange(ServerLevel origin, CallbackInfo ci) {
@@ -47,11 +48,12 @@ public abstract class ServerPlayerMixin extends LivingEntity implements Temperat
         if (currentLevel.dimension() != ServerLevel.NETHER) return;
         if (!MWP_FIELDS.isSkyblockWorld) return;
         if (MWP_FIELDS.SkyblockWorld == 3) return;
-        if (hasPlacedNether.contains(player.getUUID())) return;
-        hasPlacedNether.add(player.getUUID());
+        if (MWP_FIELDS.skyblockNetherIslandGenerated) return;
+        MWP_FIELDS.skyblockNetherIslandGenerated = true;
 
         BlockPos playerPos = player.blockPosition();
         Direction facing = player.getDirection();
+        Direction sideways = facing.getClockWise();
 
         player.getServer().execute(() -> {
             StructureTemplateManager templateManager = currentLevel.getStructureManager();
@@ -75,9 +77,9 @@ public abstract class ServerPlayerMixin extends LivingEntity implements Temperat
 
 
                 BlockPos placePos = new BlockPos(
-                        playerPos.getX() + facing.getStepX() - 2,
+                        playerPos.getX() + facing.getStepX() * 3 + sideways.getStepX() * 2,
                         playerPos.getY() - 3,
-                        playerPos.getZ() + facing.getStepZ()
+                        playerPos.getZ() + facing.getStepZ() * 3 + sideways.getStepZ() * 2
                 );
 
                 t.placeInWorld(currentLevel, placePos, placePos, settings, currentLevel.random, 1026);
