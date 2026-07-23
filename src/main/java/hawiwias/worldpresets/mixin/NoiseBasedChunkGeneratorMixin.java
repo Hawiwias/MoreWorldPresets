@@ -224,7 +224,12 @@ public class NoiseBasedChunkGeneratorMixin {
                                 ResourceLocation.fromNamespaceAndPath("minecraft", "chests/stronghold_library"),
                                 ResourceLocation.fromNamespaceAndPath("minecraft", "chests/underwater_ruin_big"),
                                 ResourceLocation.fromNamespaceAndPath("minecraft", "chests/underwater_ruin_small"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/woodland_mansion")
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/woodland_mansion"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/trial_chambers/corridor"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/trial_chambers/entrance"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/trial_chambers/intersection"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/trial_chambers/reward"),
+                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/trial_chambers/supply")
                         );
                         ResourceKey<LootTable> resourceKey = ResourceKey.create(Registries.LOOT_TABLE, chestResourceLocation.get(random.nextInt(chestResourceLocation.size())));
                         chestblockentity.setLootTable(resourceKey, random.nextLong());

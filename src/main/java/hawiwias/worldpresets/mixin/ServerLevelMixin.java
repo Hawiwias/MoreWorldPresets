@@ -39,6 +39,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
@@ -190,33 +191,53 @@ public abstract class ServerLevelMixin extends Level {
             Phase currentPhase = PhaseManager.getCurrentPhase();
             //SET BLOCK
             BlockPos pos = new BlockPos(0, 65, 0);
+            level.setBlock(new BlockPos(0, 64, 0), Blocks.BEDROCK.defaultBlockState(), 3 | 16);
             List<Block> blockList = new java.util.ArrayList<>(List.of());
             List<EntityType> entityList = new java.util.ArrayList<>(List.of());
-            List<ResourceLocation> lootTableList = new java.util.ArrayList<>(List.of());
             for (Phase phase : PhaseManager.phases) {
                 if (phase.unlocked) {
                     blockList.addAll(phase.blocks);
                     entityList.addAll(phase.entities);
-                    lootTableList.addAll(phase.lootTables);
                 }
             }
             if (!blockList.isEmpty() && level.getBlockState(pos).is(Blocks.AIR)) {
                 if (random.nextInt(55) == 0) {
                     Entity entity = entityList.get(random.nextInt(entityList.size())).create(level);
-                    entity.setPos(0.5, 66, 0.5);
-                    level.addFreshEntity(entity);
+                    //LOWER CHANCES FOR A WARDEN
+                    if (entity.getType() == EntityType.WARDEN && random.nextInt(4) == 0)
+                    {
+                        entity.setPos(0.5, 66, 0.5);
+                        level.addFreshEntity(entity);
+                    }
+                    else {
+                        entity.setPos(0.5, 66, 0.5);
+                        level.addFreshEntity(entity);
+                    }
                 }
 
                 level.getServer().execute(() -> {
                     level.setBlock(pos, blockList.get(level.random.nextInt(blockList.size())).defaultBlockState(), 3 | 16);
                 });
-                if (random.nextInt(60) == 0) {
-                    level.getServer().execute(() -> {
-                        level.setBlock(pos, Blocks.CHEST.defaultBlockState(), 3 | 16);
-                    });
-                    ChestBlockEntity chest = (ChestBlockEntity) level.getBlockEntity(pos);
-                    ResourceKey<LootTable> resourceKey = ResourceKey.create(Registries.LOOT_TABLE, lootTableList.get(random.nextInt(lootTableList.size())));
-                    chest.setLootTable(resourceKey, random.nextLong());
+                if (random.nextInt(55) == 0) {
+                    List<ResourceLocation> availableLootTables = new java.util.ArrayList<>(List.of());
+                    ;
+                    for (Phase phase : PhaseManager.phases) {
+                        if (phase.unlocked && phase.lootTables != null) {
+                            availableLootTables.addAll(phase.lootTables);
+                        }
+                    }
+
+                    if (!availableLootTables.isEmpty()) {
+                        level.getServer().execute(() -> {
+                            level.setBlock(pos, Blocks.CHEST.defaultBlockState(), 3 | 16);
+                        });
+                        ChestBlockEntity chest = (ChestBlockEntity) level.getBlockEntity(pos);
+                        ResourceKey<LootTable> resourceKey = ResourceKey.create(
+                                Registries.LOOT_TABLE,
+                                availableLootTables.get(random.nextInt(availableLootTables.size()))
+                        );
+                        chest.setLootTable(resourceKey, random.nextLong());
+                    }
                 }
             }
             //SET PHASE INFO
