@@ -1,7 +1,7 @@
 package hawiwias.worldpresets;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.FrameLayout;
@@ -45,10 +45,10 @@ public class SkyblockSettingsScreen extends Screen {
         FrameLayout.alignInRectangle(gridlayout, 0, this.height / 6 - 12, this.width, this.height, 0.5F, 0.0F);
         gridlayout.visitWidgets(this::addRenderableWidget);
     }
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
-        this.renderBackground(graphics, mouseX, mouseY, partialTick);
-        graphics.drawCenteredString(this.font, this.title, this.width / 2, 15, 16777215);
-        super.render(graphics, mouseX, mouseY, partialTick);
+    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        this.extractBackground(graphics, mouseX, mouseY, partialTick);
+        graphics.text(this.font, this.title, this.width / 2, 15, 16777215);
+        super.extractRenderState(graphics, mouseX, mouseY, partialTick);
     }
     public void onClose() {
         Minecraft.getInstance().setScreen(parent);

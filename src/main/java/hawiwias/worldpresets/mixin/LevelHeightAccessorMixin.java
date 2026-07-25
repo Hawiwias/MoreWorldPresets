@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(LevelHeightAccessor.class)
 public interface LevelHeightAccessorMixin {
 
-    @Inject(method = "getMaxBuildHeight", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "getMaxY", at = @At("RETURN"), cancellable = true)
     default void modifyMaxHeight(CallbackInfoReturnable<Integer> cir) {
         if (MWP_FIELDS.challengeWorld == 1)
         {

@@ -7,7 +7,7 @@ import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.WorldGenLevel;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SnowyDirtBlock;
+import net.minecraft.world.level.block.SnowyBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.levelgen.feature.FeaturePlaceContext;
@@ -58,12 +58,12 @@ public class SnowAndFreezeFeatureMixin {
                 worldgenlevel.setBlock(blockpos$mutableblockpos, Blocks.SNOW.defaultBlockState(), 2);
                 BlockState above = worldgenlevel.getBlockState(blockpos$mutableblockpos.above());
                 if (above.is(Blocks.TALL_GRASS) || above.is(Blocks.LARGE_FERN)
-                        || above.is(BlockTags.TALL_FLOWERS)) {
+                        || above.is(BlockTags.FLOWERS)) {
                     worldgenlevel.setBlock(blockpos$mutableblockpos.above(), Blocks.AIR.defaultBlockState(), 3);
                 }
                 BlockState blockstate = worldgenlevel.getBlockState(blockpos$mutableblockpos1);
-                if (blockstate.hasProperty(SnowyDirtBlock.SNOWY)) {
-                    worldgenlevel.setBlock(blockpos$mutableblockpos1, blockstate.setValue(SnowyDirtBlock.SNOWY, Boolean.TRUE), 2);
+                if (blockstate.hasProperty(SnowyBlock.SNOWY)) {
+                    worldgenlevel.setBlock(blockpos$mutableblockpos1, blockstate.setValue(SnowyBlock.SNOWY, Boolean.TRUE), 2);
                 }
             }
         }

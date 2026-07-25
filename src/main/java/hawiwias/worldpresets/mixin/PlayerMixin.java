@@ -16,21 +16,19 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import static net.minecraft.world.level.Level.*;
 
 @Mixin(Player.class)
 public abstract class PlayerMixin extends LivingEntity implements TemperatureAccessor {
-    @Shadow
-    public float bob;
     Player player = (Player) (Object) this;
     @Unique
     Block closestBlock;
@@ -161,7 +159,7 @@ public abstract class PlayerMixin extends LivingEntity implements TemperatureAcc
     @Inject(method = "tick", at = @At("HEAD"))
     public void temperatureHandling(CallbackInfo ci) {
         if (MWP_FIELDS.isWinterWorld && player.level().dimension().equals(OVERWORLD)) {
-            long time = player.level().getDayTime() % 24000;
+            long time = player.level().getOverworldClockTime() % 24000;
             float minTemp = -20.0f;
             float maxTemp = 1.0f;
             float peakTime = 6000f;
@@ -209,24 +207,24 @@ public abstract class PlayerMixin extends LivingEntity implements TemperatureAcc
     }
 
     @Inject(method = "addAdditionalSaveData", at = @At("HEAD"))
-    private void nbtSaveTemperature(CompoundTag compoundTag, CallbackInfo ci) {
-        compoundTag.putFloat("temperature", getTemperature());
-        compoundTag.putFloat("ambientTemp", ambientTemp);
-        compoundTag.putFloat("frozenProgress", frozenProgress);
-        compoundTag.putFloat("coldMeter", coldMeter);
+    private void nbtSaveTemperature(ValueOutput output, CallbackInfo ci) {
+        output.putFloat("temperature", getTemperature());
+        output.putFloat("ambientTemp", ambientTemp);
+        output.putFloat("frozenProgress", frozenProgress);
+        output.putFloat("coldMeter", coldMeter);
     }
 
     @Inject(method = "readAdditionalSaveData", at = @At("HEAD"))
-    private void nbtLoadTemperature(CompoundTag compoundTag, CallbackInfo ci) {
-        if (compoundTag.contains("temperature")) {
-            setTemperature(compoundTag.getFloat("temperature"));
-            ambientTemp = compoundTag.contains("ambientTemp")
-                    ? compoundTag.getFloat("ambientTemp")
-                    : compoundTag.getFloat("temperature");
-            frozenProgress = compoundTag.contains("frozenProgress")
-                    ? compoundTag.getFloat("frozenProgress") : 0f;
-            coldMeter = compoundTag.contains("coldMeter")
-                    ? compoundTag.getFloat("coldMeter") : 0f;
+    private void nbtLoadTemperature(ValueInput input, CallbackInfo ci) {
+        if (input.contains("temperature")) {
+            setTemperature(input.getFloatOr("temperature", 0.0f));
+            ambientTemp = input.contains("ambientTemp")
+                    ? input.getFloatOr("ambientTemp", 0.0f)
+                    : input.getFloatOr("temperature", 0.0f);
+            frozenProgress = input.contains("frozenProgress")
+                    ? input.getFloatOr("frozenProgress", 0.0f) : 0f;
+            coldMeter = input.contains("coldMeter")
+                    ? input.getFloatOr("coldMeter", 0.0f) : 0f;
         }
     }
     @WrapOperation(method = "maybeBackOffFromEdge", at = @At(value = "INVOKE", target = "net/minecraft/world/entity/player/Player.isStayingOnGroundSurface ()Z"))
@@ -234,7 +232,7 @@ public abstract class PlayerMixin extends LivingEntity implements TemperatureAcc
         return original.call(instance) && MWP_FIELDS.challengeWorld != 3;
     }
 
-    @WrapOperation(method = "updatePlayerPose", at = @At(value = "INVOKE", target = "net/minecraft/world/entity/player/Player.isShiftKeyDown ()Z"))
+    @WrapOperation(method = "getDesiredPose", at = @At(value = "INVOKE", target = "net/minecraft/world/entity/player/Player.isShiftKeyDown ()Z"))
     private boolean restrictCrouching(Player instance, Operation<Boolean> original) {
         return original.call(instance) && MWP_FIELDS.challengeWorld != 3;
     }

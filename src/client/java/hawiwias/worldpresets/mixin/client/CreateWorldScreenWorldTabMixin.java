@@ -48,8 +48,8 @@ public abstract class CreateWorldScreenWorldTabMixin extends GridLayoutTab {
         currentPresetWidget = new StringWidget(
                 buildPresetLabel(createWorldScreen.getUiState().getWorldType().describePreset()),
                 Minecraft.getInstance().font
-        ).alignLeft();
-        gridlayout$rowhelper.addChild(currentPresetWidget, gridlayout$rowhelper.newCellSettings().alignVerticallyMiddle());
+        );
+        gridlayout$rowhelper.addChild(currentPresetWidget, gridlayout$rowhelper.newCellSettings().alignVerticallyMiddle().alignHorizontallyLeft());
         createWorldScreen.getUiState().addListener((state) -> {
             currentPresetWidget.setMessage(
                     buildPresetLabel(state.getWorldType().describePreset())

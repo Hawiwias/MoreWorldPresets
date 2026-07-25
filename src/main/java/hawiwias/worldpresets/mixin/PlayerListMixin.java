@@ -5,7 +5,7 @@ import hawiwias.worldpresets.PhaseManager;
 import hawiwias.worldpresets.accessor.TemperatureAccessor;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.bossevents.CustomBossEvent;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
@@ -26,12 +26,12 @@ import static hawiwias.worldpresets.PhaseManager.phaseProgressBar;
 public class PlayerListMixin {
     @Inject(method = "placeNewPlayer", at = @At("TAIL"))
     private void addProgressionBar(Connection connection, ServerPlayer serverPlayer, CommonListenerCookie commonListenerCookie, CallbackInfo ci) {
-        CustomBossEvent existing = serverPlayer.getServer().getCustomBossEvents().get(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "phase_progress"));
+        CustomBossEvent existing = serverPlayer.level().getServer().getCustomBossEvents().get(Identifier.fromNamespaceAndPath("moreworldpresets", "phase_progress"));
         if (!MWP_FIELDS.isOneblockWorld) return;
         if (existing != null) {
             phaseProgressBar = existing;
         } else {
-            phaseProgressBar = serverPlayer.getServer().getCustomBossEvents().create(ResourceLocation.fromNamespaceAndPath("moreworldpresets", "phase_progress"), Component.literal("23131"));
+            phaseProgressBar = serverPlayer.level().getServer().getCustomBossEvents().create(serverPlayer.level().getRandom() ,Identifier.fromNamespaceAndPath("moreworldpresets", "phase_progress"), Component.literal("23131"));
         }
         PhaseManager.phaseProgressBar.addPlayer(serverPlayer);
     }

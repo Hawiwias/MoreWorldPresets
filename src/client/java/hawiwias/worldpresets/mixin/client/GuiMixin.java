@@ -6,8 +6,9 @@ import hawiwias.worldpresets.accessor.TemperatureAccessor;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
+import net.minecraft.resources.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,26 +20,26 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Gui.class)
 public class GuiMixin {
 
-    private static final ResourceLocation GUI_TEMPERATURE_BAR = ResourceLocation.fromNamespaceAndPath("moreworldpresets", "textures/gui/tempbar.png");
-    private static final ResourceLocation GUI_TEMPERATURE_ARROW = ResourceLocation.fromNamespaceAndPath("moreworldpresets", "textures/gui/temparrow.png");
-    private static final ResourceLocation GUI_TEMPERATURE_BORDER = ResourceLocation.fromNamespaceAndPath("moreworldpresets", "textures/gui/tempborder.png");
+    private static final Identifier GUI_TEMPERATURE_BAR = Identifier.fromNamespaceAndPath("moreworldpresets", "textures/gui/tempbar.png");
+    private static final Identifier GUI_TEMPERATURE_ARROW = Identifier.fromNamespaceAndPath("moreworldpresets", "textures/gui/temparrow.png");
+    private static final Identifier GUI_TEMPERATURE_BORDER = Identifier.fromNamespaceAndPath("moreworldpresets", "textures/gui/tempborder.png");
     @Shadow
     Minecraft minecraft;
-    @ModifyConstant(method = "renderFood", constant = @Constant(intValue = 10))
+    @ModifyConstant(method = "extractFood", constant = @Constant(intValue = 10))
     private int hideExtraHungerIcons(int constant) {
         if (MWP_FIELDS.challengeWorld == 3) {
             return 5;
         }
         return constant;
     }
-    @Inject(method = "render", at = @At("TAIL"))
-    private void renderModded(GuiGraphics guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
+    @Inject(method = "extractRenderState", at = @At("TAIL"))
+    private void renderModded(GuiGraphicsExtractor guiGraphics, DeltaTracker deltaTracker, CallbackInfo ci) {
         if (!minecraft.options.hideGui && minecraft.player != null && MWP_FIELDS.isWinterWorld) {
             renderTemperatureBar(guiGraphics);
         }
     }
 
-    private void renderTemperatureBar(GuiGraphics guiGraphics) {
+    private void renderTemperatureBar(GuiGraphicsExtractor guiGraphics) {
         int screenWidth = minecraft.getWindow().getGuiScaledWidth();
         int screenHeight = minecraft.getWindow().getGuiScaledHeight();
 
@@ -58,7 +59,7 @@ public class GuiMixin {
             y = hotbarTop - barHeight - 4;
         }
 
-        guiGraphics.blit(GUI_TEMPERATURE_BAR, x, y, barWidth, barHeight, 0, 0, 235, 28, 235, 28);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED ,GUI_TEMPERATURE_BAR, x, y, 0, 0, barWidth, barHeight, 235, 28, 235, 28);
         float minTemp = -40;
         float maxTemp = 30;
 
@@ -78,7 +79,7 @@ public class GuiMixin {
 
         int arrowY = y + 5;
 
-        guiGraphics.blit(GUI_TEMPERATURE_ARROW, arrowX, arrowY, arrowSize, arrowSize, 0, 0, 128, 128, 128, 128);
-        guiGraphics.blit(GUI_TEMPERATURE_BORDER, x, y, barWidth, barHeight, 0, 0, 235, 28, 235, 28);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED ,GUI_TEMPERATURE_ARROW, arrowX, arrowY, 0, 0, arrowSize, arrowSize, 128, 128, 128, 128);
+        guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GUI_TEMPERATURE_BORDER, x, y, 0, 0, barWidth, barHeight, 235, 28, 235, 28);
     }
 }

@@ -17,17 +17,19 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import com.mojang.serialization.Dynamic;
 
+import java.util.UUID;
+
 @Mixin(PrimaryLevelData.class)
 public abstract class PrimaryLevelDataMixin {
     @Inject(method = "parse", at = @At("RETURN"))
     private static <T> void onParse(
-            Dynamic<T> dynamic, LevelSettings levelSettings, PrimaryLevelData.SpecialWorldProperty specialWorldProperty, WorldOptions worldOptions, Lifecycle lifecycle, CallbackInfoReturnable<PrimaryLevelData> cir
+            Dynamic<T> input, LevelSettings settings, PrimaryLevelData.SpecialWorldProperty specialWorldProperty, Lifecycle worldGenSettingsLifecycle, CallbackInfoReturnable<PrimaryLevelData> cir
     ) {
-        boolean winter = dynamic.get("winterworld").asBoolean(false);
-        int challenge = dynamic.get("challengeworld").asInt(0);
-        boolean skyblock = dynamic.get("skyblockworld").asBoolean(false);
-        boolean oneblock = dynamic.get("oneblockworld").asBoolean(false);
-        boolean skygrid = dynamic.get("skygridworld").asBoolean(false);
+        boolean winter = input.get("winterworld").asBoolean(false);
+        int challenge = input.get("challengeworld").asInt(0);
+        boolean skyblock = input.get("skyblockworld").asBoolean(false);
+        boolean oneblock = input.get("oneblockworld").asBoolean(false);
+        boolean skygrid = input.get("skygridworld").asBoolean(false);
 
         String presetLabel = "Vanilla";
         if (winter) presetLabel = "Winter World";
@@ -39,18 +41,18 @@ public abstract class PrimaryLevelDataMixin {
 
         MWP_FIELDS.isWinterWorld = winter;
         MWP_FIELDS.challengeWorld = challenge;
-        PhaseManager.currentPhaseProgress = dynamic.get("currentPhaseProgress").asInt(0);
-        PhaseManager.currentPhaseIndex = dynamic.get("currentPhaseIndex").asInt(0);
+        PhaseManager.currentPhaseProgress = input.get("currentPhaseProgress").asInt(0);
+        PhaseManager.currentPhaseIndex = input.get("currentPhaseIndex").asInt(0);
         MWP_FIELDS.isSkyblockWorld = skyblock;
         MWP_FIELDS.isOneblockWorld = oneblock;
         MWP_FIELDS.isSkygridWorld = skygrid;
         for (int j = 0; j < PhaseManager.phases.size(); j++) {
-            PhaseManager.phases.get(j).unlocked = dynamic.get("phase_unlocked_" + j).asBoolean(j == 0);
+            PhaseManager.phases.get(j).unlocked = input.get("phase_unlocked_" + j).asBoolean(j == 0);
         }
     }
 
     @Inject(method = "setTagData", at = @At("TAIL"))
-    private void onSetTagData(RegistryAccess registryAccess, CompoundTag tag, CompoundTag playerTag, CallbackInfo ci) {
+    private void onSetTagData(CompoundTag tag, UUID singlePlayerUUID, CallbackInfo ci) {
         tag.putString("worldPresetKey", MWP_FIELDS.presetKey);
         tag.putBoolean("winterworld", MWP_FIELDS.isWinterWorld);
         tag.putInt("challengeworld", MWP_FIELDS.challengeWorld);

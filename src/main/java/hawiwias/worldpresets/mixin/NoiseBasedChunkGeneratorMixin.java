@@ -8,7 +8,7 @@ import net.minecraft.core.*;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
@@ -71,8 +71,8 @@ public class NoiseBasedChunkGeneratorMixin {
         //USE CHALLENGE WORLD 1 NOISE SETTINGS
         if (MWP_FIELDS.challengeWorld == 1) {
             RegistryAccess registryAccess = MoreWorldPresets.INSTANCE.registryAccess();
-            Registry<NoiseGeneratorSettings> registry = registryAccess.registryOrThrow(Registries.NOISE_SETTINGS);
-            settings = registry.getHolderOrThrow(ResourceKey.create(Registries.NOISE_SETTINGS, ResourceLocation.fromNamespaceAndPath("moreworldpresets", "challenge_world")));
+            Registry<NoiseGeneratorSettings> registry = registryAccess.lookupOrThrow(Registries.NOISE_SETTINGS);
+            settings = registry.getOrThrow(ResourceKey.create(Registries.NOISE_SETTINGS, Identifier.fromNamespaceAndPath("moreworldpresets", "challenge_world")));
             cir.setReturnValue(settings);
         }
     }
@@ -81,19 +81,19 @@ public class NoiseBasedChunkGeneratorMixin {
         //CLEAR BEDROCK LAYER FOR CHALLENGE WORLD 1
         if (MWP_FIELDS.challengeWorld == 1) {
             for (BlockPos pos : BlockPos.betweenClosed(
-                    chunkAccess.getPos().getMinBlockX(), chunkAccess.getMinBuildHeight(), chunkAccess.getPos().getMinBlockZ(),
-                    chunkAccess.getPos().getMaxBlockX(), chunkAccess.getMinBuildHeight() + 5, chunkAccess.getPos().getMaxBlockZ()
+                    chunkAccess.getPos().getMinBlockX(), chunkAccess.getMinY(), chunkAccess.getPos().getMinBlockZ(),
+                    chunkAccess.getPos().getMaxBlockX(), chunkAccess.getMinY() + 5, chunkAccess.getPos().getMaxBlockZ()
             )) {
-                chunkAccess.setBlockState(pos, Blocks.AIR.defaultBlockState(), false);
+                chunkAccess.setBlockState(pos, Blocks.AIR.defaultBlockState(), 3);
             }
         }
         //CLEAR WORLD (VOID)
         if (MWP_FIELDS.isSkyblockWorld || MWP_FIELDS.isOneblockWorld || MWP_FIELDS.isSkygridWorld || MWP_FIELDS.challengeWorld == 2) {
             for (BlockPos pos : BlockPos.betweenClosed(
-                    chunkAccess.getPos().getMinBlockX(), chunkAccess.getMinBuildHeight(), chunkAccess.getPos().getMinBlockZ(),
-                    chunkAccess.getPos().getMaxBlockX(), chunkAccess.getMaxBuildHeight(), chunkAccess.getPos().getMaxBlockZ()
+                    chunkAccess.getPos().getMinBlockX(), chunkAccess.getMinY(), chunkAccess.getPos().getMinBlockZ(),
+                    chunkAccess.getPos().getMaxBlockX(), chunkAccess.getMaxY(), chunkAccess.getPos().getMaxBlockZ()
             )) {
-                chunkAccess.setBlockState(pos, Blocks.AIR.defaultBlockState(), false);
+                chunkAccess.setBlockState(pos, Blocks.AIR.defaultBlockState(), 3);
                 if (pos.getX() % 4 == 0 && pos.getZ() % 4 == 0 && pos.getY() % 4 == 0 && MWP_FIELDS.isSkygridWorld) {
                     //DEFAULT LIST TO GENERATE
                     List<TagKey<Block>> tags = List.of(
@@ -128,7 +128,7 @@ public class NoiseBasedChunkGeneratorMixin {
                     
                     //DETERMINE A RANDOM BLOCK
                     List<Block> blocks = Stream.concat(tags.stream()
-                            .flatMap(tag -> BuiltInRegistries.BLOCK.getTag(tag)
+                            .flatMap(tag -> BuiltInRegistries.BLOCK.get(tag)
                                     .map(named -> named.stream().map(Holder::value))
                                     .orElse(Stream.empty())),
                                     Stream.of(Blocks.DRIPSTONE_BLOCK, Blocks.POINTED_DRIPSTONE))
@@ -185,7 +185,7 @@ public class NoiseBasedChunkGeneratorMixin {
                     }
 
                     //SET RANDOM BLOCK
-                    chunkAccess.setBlockState(pos, randomBlock , false);
+                    chunkAccess.setBlockState(pos, randomBlock , 2);
 
                     //SET RANDOM ENTITY IN SPAWNER
                     if (randomBlock.is(Blocks.SPAWNER)) {
@@ -197,39 +197,39 @@ public class NoiseBasedChunkGeneratorMixin {
                     //SET RANDOM LOOT TABLE IN CHEST
                     if (randomBlock.is(Blocks.CHEST)) {
                         ChestBlockEntity chestblockentity = new ChestBlockEntity(pos, randomBlock);
-                        List<ResourceLocation> chestResourceLocation = List.of(
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/abandoned_mineshaft"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/ancient_city"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/ancient_city_ice_box"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/bastion_bridge"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/bastion_hoglin_stable"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/bastion_other"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/bastion_treasure"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/buried_treasure"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/desert_pyramid"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/end_city_treasure"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/igloo_chest"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/jungle_temple"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/jungle_temple_dispenser"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/nether_bridge"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/pillager_outpost"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/ruined_portal"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/shipwreck_map"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/shipwreck_supply"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/shipwreck_treasure"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/simple_dungeon"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/spawn_bonus_chest"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/stronghold_corridor"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/stronghold_crossing"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/stronghold_library"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/underwater_ruin_big"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/underwater_ruin_small"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/woodland_mansion"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/trial_chambers/corridor"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/trial_chambers/entrance"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/trial_chambers/intersection"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/trial_chambers/reward"),
-                                ResourceLocation.fromNamespaceAndPath("minecraft", "chests/trial_chambers/supply")
+                        List<Identifier> chestResourceLocation = List.of(
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/abandoned_mineshaft"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/ancient_city"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/ancient_city_ice_box"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/bastion_bridge"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/bastion_hoglin_stable"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/bastion_other"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/bastion_treasure"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/buried_treasure"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/desert_pyramid"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/end_city_treasure"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/igloo_chest"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/jungle_temple"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/jungle_temple_dispenser"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/nether_bridge"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/pillager_outpost"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/ruined_portal"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/shipwreck_map"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/shipwreck_supply"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/shipwreck_treasure"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/simple_dungeon"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/spawn_bonus_chest"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/stronghold_corridor"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/stronghold_crossing"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/stronghold_library"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/underwater_ruin_big"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/underwater_ruin_small"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/woodland_mansion"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/trial_chambers/corridor"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/trial_chambers/entrance"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/trial_chambers/intersection"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/trial_chambers/reward"),
+                                Identifier.fromNamespaceAndPath("minecraft", "chests/trial_chambers/supply")
                         );
                         ResourceKey<LootTable> resourceKey = ResourceKey.create(Registries.LOOT_TABLE, chestResourceLocation.get(random.nextInt(chestResourceLocation.size())));
                         chestblockentity.setLootTable(resourceKey, random.nextLong());

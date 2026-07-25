@@ -5,10 +5,7 @@ import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Holder;
-import net.minecraft.core.HolderSet;
-import net.minecraft.core.Registry;
+import net.minecraft.core.*;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
@@ -21,11 +18,13 @@ import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
+import net.minecraft.world.level.storage.LevelData;
 import net.minecraft.world.phys.AABB;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Set;
 
 public class MoreWorldPresets implements ModInitializer {
 	public static final String MOD_ID = "moreworldpresets";
@@ -37,8 +36,8 @@ public class MoreWorldPresets implements ModInitializer {
 		int centerChunkZ = center.getZ() >> 4;
 		int maxChunkRadius = (maxRadius >> 4) + 1;
 
-		int minY = 50;
-		int maxY = level.getMaxBuildHeight() - 1;
+		int minY = 63;
+		int maxY = 120;
 
 		for (int chunkRadius = 0; chunkRadius <= maxChunkRadius; chunkRadius++) {
 			for (int dx = -chunkRadius; dx <= chunkRadius; dx++) {
@@ -81,7 +80,7 @@ public class MoreWorldPresets implements ModInitializer {
 				);
 				for (ItemEntity item : drops) {
 					player.addItem(item.getItem());
-					item.kill();
+					item.kill(serverLevel);
 				}
 			});
 		});
@@ -90,17 +89,24 @@ public class MoreWorldPresets implements ModInitializer {
 			if(player.level().dimension().equals(ServerLevel.OVERWORLD)) {
 				if (player.getStats().getValue(Stats.CUSTOM.get(Stats.PLAY_TIME)) == 0) {
 					if (MWP_FIELDS.challengeWorld == 1) {
-						player.getServer().execute(() -> {
+						player.level().getServer().execute(() -> {
 							player.teleportTo(
-									player.serverLevel(),
+									player.level(),
 									0.500,
 									-63,
 									0.500,
+									Set.of(),
 									player.getYRot(),
-									player.getXRot()
+									player.getXRot(),
+									false
 							);
 						});
-						player.setRespawnPosition(player.level().dimension(), new BlockPos((int) 0.5, -63, (int) 0.5), player.getYRot(), true, false);
+						GlobalPos globalPos = GlobalPos.of(player.level().dimension(), new BlockPos((int) 0.5, -63, (int) 0.5));
+						ServerPlayer.RespawnConfig respawnConfig = new ServerPlayer.RespawnConfig(
+								new LevelData.RespawnData(globalPos, player.getYRot(), 0.0f),
+								true
+						);
+						player.setRespawnPosition(respawnConfig, false);
 					}
 					if (MWP_FIELDS.isSkyblockWorld) {
 						double x;
@@ -115,47 +121,63 @@ public class MoreWorldPresets implements ModInitializer {
 							y = 67;
 							z = 7.5;
 						}
-						player.getServer().execute(() -> {
+						player.level().getServer().execute(() -> {
 							player.teleportTo(
-									player.serverLevel(),
+									player.level(),
 									x,
 									y,
 									z,
+									Set.of(),
 									player.getYRot(),
-									player.getXRot()
+									player.getXRot(),
+									false
 							);
 						});
-						player.setRespawnPosition(player.level().dimension(), new BlockPos((int) x, (int) y, (int) z), player.getYRot(), true, false);
+						GlobalPos globalPos = GlobalPos.of(player.level().dimension(), new BlockPos((int) x, (int) y, (int) z));
+						ServerPlayer.RespawnConfig respawnConfig = new ServerPlayer.RespawnConfig(
+								new LevelData.RespawnData(globalPos, player.getYRot(), 0.0f),
+								true
+						);
+						player.setRespawnPosition(respawnConfig, false);
 					}
 					if (MWP_FIELDS.isSkygridWorld) {
-						player.getServer().execute(() -> {
+						player.level().getServer().execute(() -> {
 							player.teleportTo(
-									player.serverLevel(),
+									player.level(),
 									0.500,
 									81,
 									0.500,
+									Set.of(),
 									player.getYRot(),
-									player.getXRot()
+									player.getXRot(),
+									false
 							);
 						});
 					}
 					if (MWP_FIELDS.isOneblockWorld) {
-						player.getServer().execute(() -> {
+						player.level().getServer().execute(() -> {
 							player.teleportTo(
-									player.serverLevel(),
+									player.level(),
 									0.500,
 									66,
 									0.500,
+									Set.of(),
 									player.getYRot(),
-									player.getXRot()
+									player.getXRot(),
+									false
 							);
 						});
-						player.setRespawnPosition(player.level().dimension(), new BlockPos((int) 0.5, 66, (int) 0.5), player.getYRot(), true, false);
+						GlobalPos globalPos = GlobalPos.of(player.level().dimension(), new BlockPos((int) 0.5, 66, (int) 0.5));
+						ServerPlayer.RespawnConfig respawnConfig = new ServerPlayer.RespawnConfig(
+								new LevelData.RespawnData(globalPos, player.getYRot(), 0.0f),
+								true
+						);
+						player.setRespawnPosition(respawnConfig, false);
 					}
 					if (MWP_FIELDS.challengeWorld == 2) {
-						player.getServer().execute(() -> {
-							ServerLevel serverLevel = player.serverLevel();
-							BlockPos pathPos = findNearestPathBlock(serverLevel, BlockPos.ZERO, 300);
+						player.level().getServer().execute(() -> {
+							ServerLevel serverLevel = player.level();
+							BlockPos pathPos = findNearestPathBlock(serverLevel, BlockPos.ZERO, 500);
 
 							if (pathPos != null) {
 								BlockPos spawnPos = pathPos.above();
@@ -164,16 +186,23 @@ public class MoreWorldPresets implements ModInitializer {
 										spawnPos.getX() + 0.5,
 										spawnPos.getY(),
 										spawnPos.getZ() + 0.5,
+										Set.of(),
 										player.getYRot(),
-										player.getXRot()
+										player.getXRot(),
+										false
 								);
-								player.setRespawnPosition(serverLevel.dimension(), spawnPos, player.getYRot(), true, false);
+								GlobalPos globalPos = GlobalPos.of(player.level().dimension(), spawnPos);
+								ServerPlayer.RespawnConfig respawnConfig = new ServerPlayer.RespawnConfig(
+										new LevelData.RespawnData(globalPos, player.getYRot(), 0.0f),
+										true
+								);
+								player.setRespawnPosition(respawnConfig, false);
 							}
 						});
 					}
 			}
 				if (MWP_FIELDS.challengeWorld == 3) {
-					player.getServer().execute(() -> {
+					player.level().getServer().execute(() -> {
 						AttributeInstance maxHealthAttr = player.getAttribute(Attributes.MAX_HEALTH);
 						if (maxHealthAttr != null) {
 							maxHealthAttr.setBaseValue(10.0);
