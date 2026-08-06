@@ -8,6 +8,6 @@ A Minecraft mod for **Fabric 1.20.1/1.21.1/26.1** that adds various world preset
 - **Skygrid**: A huge grid of random blocks in the void (Original by SethBling).
 - **Oneblock**: Survive on a single block that regenerates when broken.
 - **Winter**: A world with a never-ending winter, features a temperature bar.
-- **Challenge Worlds**: Specialized worlds with challenging featgures.
+- **Challenge Worlds**: Specialized worlds with challenging features.
 
 The mod also updates the World Tab Creation screen to provide an updated user interface for selecting world presets.
