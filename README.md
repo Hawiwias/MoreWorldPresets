@@ -1,5 +1,5 @@
 # More World Presets
-A Minecraft mod for **Fabric 1.20.1/1.21.1/26.1** that adds various world presets and updates the world creation screen.
+A Minecraft mod for **Fabric 1.20.1/1.21.1/26.1** and **Neoforge 1.21.1/26.1** that adds various world presets and updates the world creation screen.
 
 ## Overview
 
