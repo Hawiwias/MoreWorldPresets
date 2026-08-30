@@ -1,7 +1,7 @@
 package hawiwias.worldpresets.mixin.client;
 
-import hawiwias.worldpresets.GradientTextUtil;
 import hawiwias.worldpresets.PresetLabelAccessor;
+import hawiwias.worldpresets.GradientTextUtil;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.worldselection.WorldSelectionList;
 import net.minecraft.network.chat.MutableComponent;
