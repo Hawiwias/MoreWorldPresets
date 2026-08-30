@@ -3,6 +3,7 @@ package hawiwias.worldpresets.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.mojang.serialization.Codec;
 import hawiwias.worldpresets.MWP_FIELDS;
 import hawiwias.worldpresets.accessor.TemperatureAccessor;
 import hawiwias.worldpresets.accessor.heatValues;
@@ -216,14 +217,14 @@ public abstract class PlayerMixin extends LivingEntity implements TemperatureAcc
 
     @Inject(method = "readAdditionalSaveData", at = @At("HEAD"))
     private void nbtLoadTemperature(ValueInput input, CallbackInfo ci) {
-        if (input.contains("temperature")) {
+        if (input.read("temperature", Codec.FLOAT).isPresent()) {
             setTemperature(input.getFloatOr("temperature", 0.0f));
-            ambientTemp = input.contains("ambientTemp")
+            ambientTemp = input.read("ambientTemp", Codec.FLOAT).isPresent()
                     ? input.getFloatOr("ambientTemp", 0.0f)
                     : input.getFloatOr("temperature", 0.0f);
-            frozenProgress = input.contains("frozenProgress")
+            frozenProgress = input.read("frozenProgress", Codec.FLOAT).isPresent()
                     ? input.getFloatOr("frozenProgress", 0.0f) : 0f;
-            coldMeter = input.contains("coldMeter")
+            coldMeter = input.read("coldMeter", Codec.FLOAT).isPresent()
                     ? input.getFloatOr("coldMeter", 0.0f) : 0f;
         }
     }

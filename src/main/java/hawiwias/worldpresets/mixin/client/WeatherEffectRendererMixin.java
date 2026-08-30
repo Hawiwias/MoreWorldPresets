@@ -20,7 +20,7 @@ public class WeatherEffectRendererMixin {
             method = "getPrecipitationAt",
             at = @At(value = "INVOKE", target = "Lnet/minecraft/world/level/biome/Biome;getPrecipitationAt(Lnet/minecraft/core/BlockPos;I)Lnet/minecraft/world/level/biome/Biome$Precipitation;")
     )
-    private Biome.Precipitation forceSnowInWinterWorld(Biome biome, BlockPos pos, int seaLevel, Operation<Biome.Precipitation> original, @Local(argsOnly = true, name = "level") Level level) {
+    private Biome.Precipitation forceSnowInWinterWorld(Biome biome, BlockPos pos, int seaLevel, Operation<Biome.Precipitation> original, @Local(argsOnly = true) Level level) {
         if (MWP_FIELDS.isWinterWorld && level.dimension().equals(Level.OVERWORLD)) {
             return Biome.Precipitation.SNOW;
         }
