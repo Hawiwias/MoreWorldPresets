@@ -16,10 +16,14 @@ import net.minecraft.tags.StructureTags;
 import net.minecraft.world.entity.ai.attributes.AttributeInstance;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.storage.LevelData;
+import net.minecraft.world.level.storage.loot.LootParams;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -67,22 +71,23 @@ public class MoreWorldPresets implements ModInitializer {
 	}
 	@Override
 	public void onInitialize() {
-		PlayerBlockBreakEvents.AFTER.register((world, player, blockPos, state, blockEntity) -> {
-			if (!blockPos.equals(new BlockPos(0, 65, 0)) || !MWP_FIELDS.isOneblockWorld) return;
-
-			PhaseManager.onBlockBroken(world, player);
+		PlayerBlockBreakEvents.BEFORE.register((world, player, pos, state, blockEntity) -> {
+			if (!pos.equals(new BlockPos(0, 65, 0)) || !MWP_FIELDS.isOneblockWorld) return true;
+			if (!(player instanceof ServerPlayer serverPlayer)) return true;
 
 			ServerLevel serverLevel = (ServerLevel) world;
-			serverLevel.getServer().execute(() -> {
-				List<ItemEntity> drops = serverLevel.getEntitiesOfClass(
-						ItemEntity.class,
-						new AABB(blockPos).inflate(-0.2)
-				);
-				for (ItemEntity item : drops) {
-					player.addItem(item.getItem());
-					item.kill(serverLevel);
-				}
-			});
+			LootParams.Builder lootParams = new LootParams.Builder(serverLevel)
+					.withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos))
+					.withParameter(LootContextParams.TOOL, serverPlayer.getMainHandItem())
+					.withOptionalParameter(LootContextParams.THIS_ENTITY, serverPlayer);
+
+			List<ItemStack> drops = state.getDrops(lootParams);
+			drops.forEach(serverPlayer.getInventory()::add);
+
+			PhaseManager.onBlockBroken(world, serverPlayer);
+
+			world.removeBlock(pos, false);
+			return false;
 		});
 		ServerPlayConnectionEvents.JOIN.register((handler, sender, server) -> {
 			ServerPlayer player = handler.getPlayer();
