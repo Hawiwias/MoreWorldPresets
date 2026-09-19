@@ -1,14 +1,10 @@
 package hawiwias.worldpresets.mixin;
 
-import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Lifecycle;
 import hawiwias.worldpresets.MWP_FIELDS;
 import hawiwias.worldpresets.PhaseManager;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.LevelSettings;
-import net.minecraft.world.level.levelgen.WorldOptions;
-import net.minecraft.world.level.storage.LevelVersion;
 import net.minecraft.world.level.storage.PrimaryLevelData;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,6 +23,7 @@ public abstract class PrimaryLevelDataMixin {
     ) {
         boolean winter = input.get("winterworld").asBoolean(false);
         int challenge = input.get("challengeworld").asInt(0);
+        int skyblockVersion = input.get("skyblockversion").asInt(1);
         boolean skyblock = input.get("skyblockworld").asBoolean(false);
         boolean oneblock = input.get("oneblockworld").asBoolean(false);
         boolean skygrid = input.get("skygridworld").asBoolean(false);
@@ -41,6 +38,7 @@ public abstract class PrimaryLevelDataMixin {
 
         MWP_FIELDS.isWinterWorld = winter;
         MWP_FIELDS.challengeWorld = challenge;
+        MWP_FIELDS.SkyblockWorld = skyblockVersion;
         PhaseManager.currentPhaseProgress = input.get("currentPhaseProgress").asInt(0);
         PhaseManager.currentPhaseIndex = input.get("currentPhaseIndex").asInt(0);
         MWP_FIELDS.isSkyblockWorld = skyblock;
@@ -59,6 +57,7 @@ public abstract class PrimaryLevelDataMixin {
         tag.putInt("currentPhaseProgress", PhaseManager.currentPhaseProgress);
         tag.putInt("currentPhaseIndex", PhaseManager.currentPhaseIndex);
         tag.putBoolean("skyblockworld", MWP_FIELDS.isSkyblockWorld);
+        tag.putInt("skyblockversion", MWP_FIELDS.SkyblockWorld);
         tag.putBoolean("oneblockworld", MWP_FIELDS.isOneblockWorld);
         tag.putBoolean("skygridworld", MWP_FIELDS.isSkygridWorld);
         for (int j = 0; j < PhaseManager.phases.size(); j++) {
