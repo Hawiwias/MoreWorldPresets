@@ -3,7 +3,6 @@ package hawiwias.worldpresets;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.CycleButton;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.layouts.GridLayout;
 import net.minecraft.client.gui.screens.Screen;
@@ -12,103 +11,83 @@ import net.minecraft.client.gui.screens.worldselection.PresetEditor;
 import net.minecraft.client.gui.screens.worldselection.WorldCreationUiState;
 import net.minecraft.network.chat.CommonComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.Identifier;
-
 import java.util.List;
-import java.util.Random;
 
 public class WorldPresetsScreen extends Screen {
     protected final CreateWorldScreen parent;
-    public WorldPresetsScreen(CreateWorldScreen sr5tx) {
+    protected final Screen previousScreen;
+    private int type;
+    public WorldPresetsScreen(CreateWorldScreen sr5tx, Screen previousScreen ,int type) {
         super(Component.translatable("selectWorld.presetsScreen"));
         parent = sr5tx;
+        this.type = type;
+        this.previousScreen = previousScreen;
     }
     private static final Component AMPLIFIED_HELP_TEXT = Component.translatable("generator.minecraft.amplified.info");
 
-    // 0 = Disabled, 1-4 = variant, 5 = Random
     private int challengeWorldVariant = 0;
     private Tooltip challengeWorldTooltip(Integer value) {
         return switch (value) {
-            case 1 -> Tooltip.create(Component.translatable("generator.moreworldpresets.challenge_world1.info"));
-            case 2 -> Tooltip.create(Component.translatable("generator.moreworldpresets.challenge_world2.info"));
-            case 3 -> Tooltip.create(Component.translatable("generator.moreworldpresets.challenge_world3.info"));
-            case 4 -> Tooltip.create(Component.translatable("generator.moreworldpresets.challenge_world4.info"));
+
             default -> Tooltip.create(CommonComponents.EMPTY);
         };
-    }
-    private MutableComponent gradientText(String text, int startColor, int endColor) {
-        MutableComponent result = Component.empty();
-        int length = text.length();
-        for (int i = 0; i < length; i++) {
-            float ratio = length <= 1 ? 0 : (float) i / (length - 1);
-            int color = lerpColor(startColor, endColor, ratio);
-            result.append(Component.literal(String.valueOf(text.charAt(i))).withStyle(style -> style.withColor(color)));
-        }
-        return result;
-    }
-
-    private int lerpColor(int start, int end, float ratio) {
-        int r1 = (start >> 16) & 0xFF, g1 = (start >> 8) & 0xFF, b1 = start & 0xFF;
-        int r2 = (end >> 16) & 0xFF, g2 = (end >> 8) & 0xFF, b2 = end & 0xFF;
-        int r = (int) (r1 + (r2 - r1) * ratio);
-        int g = (int) (g1 + (g2 - g1) * ratio);
-        int b = (int) (b1 + (b2 - b1) * ratio);
-        return (r << 16) | (g << 8) | b;
     }
     protected void init() {
         boolean isChallengeWorldActive = parent.getUiState().getWorldType().preset()
                 .is(Identifier.fromNamespaceAndPath("moreworldpresets", "challenge_world"));
         challengeWorldVariant = isChallengeWorldActive ? MWP_FIELDS.challengeWorld : 0;
         GridLayout gridlayout = new GridLayout();
-        gridlayout.setPosition(this.width / 2 - 210, 50);
-        gridlayout.defaultCellSetting().paddingHorizontal(5).paddingBottom(4).alignHorizontallyCenter();
-        GridLayout.RowHelper gridlayout$rowhelper = gridlayout.createRowHelper(2);
+        gridlayout.setPosition( 20, 50);
+        gridlayout.defaultCellSetting().paddingHorizontal(5).paddingBottom(20).alignVerticallyMiddle();
+        int totalGridWidth = 3 * (150 + 10);
+        gridlayout.setPosition((this.width - totalGridWidth) / 2, 50);
+        GridLayout.RowHelper gridlayout$rowhelper = gridlayout.createRowHelper(3);
         List<WorldCreationUiState.WorldTypeEntry> presetList = parent.getUiState().getAltPresetList();
         presetList.forEach(entry -> {
-            if (entry.preset().is(Identifier.fromNamespaceAndPath("moreworldpresets", "challenge_world"))) {
-                CycleButton<Integer> cycleButton = CycleButton.<Integer>builder(this::challengeWorldLabel, challengeWorldVariant)
-                        .withValues(0, 1, 2, 3, 4, 5)
-                        .withTooltip(this::challengeWorldTooltip)
-                        .displayOnlyValue()
-                        .create(0, 0, 200, 20, CommonComponents.EMPTY, (button, value) -> {
-                            challengeWorldVariant = value;
-
-                            if (value == 0) {
-                                return;
-                            }
-
-                            parent.getUiState().setWorldType(entry);
-                            MWP_FIELDS.challengeWorld = (value == 5)
-                                    ? 1 + new Random().nextInt(4)
-                                    : value;
-                            parent.getUiState().onChanged();
-                        });
-                gridlayout$rowhelper.addChild(cycleButton);
-                return;
-            }
             Component label = entry.describePreset();
 
             String presetId = null;
-            if (entry.preset().is(Identifier.fromNamespaceAndPath("moreworldpresets", "skyblock_world"))) presetId = "skyblock";
-            else if (entry.preset().is(Identifier.fromNamespaceAndPath("moreworldpresets", "skygrid_world"))) presetId = "skygrid";
-            else if (entry.preset().is(Identifier.fromNamespaceAndPath("moreworldpresets", "oneblock_world"))) presetId = "oneblock";
-            else if (entry.preset().is(Identifier.fromNamespaceAndPath("moreworldpresets", "winter_world"))) presetId = "winter";
-            else if (entry.preset().is(Identifier.fromNamespaceAndPath("minecraft", "flat"))) presetId = "flat";
-            else if (entry.preset().is(Identifier.fromNamespaceAndPath("minecraft", "normal"))) presetId = "normal";
-            else if (entry.preset().is(Identifier.fromNamespaceAndPath("minecraft", "amplified"))) presetId = "amplified";
-            else if (entry.preset().is(Identifier.fromNamespaceAndPath("minecraft", "large_biomes"))) presetId = "large_biomes";
-            else if (entry.preset().is(Identifier.fromNamespaceAndPath("minecraft", "single_biome_surface"))) presetId = "single_biome";
-            else if (entry.preset().is(Identifier.fromNamespaceAndPath("minecraft", "debug_all_block_states"))) presetId = "debug";
-            else if (entry.preset().is(Identifier.fromNamespaceAndPath("moreworldpresets", "floating_islands"))) presetId = "floating_islands";
-            if (presetId != null) {
-                MutableComponent gradient = GradientTextUtil.forPresetId(presetId);
-                if (gradient != null) {
-                    label = gradient;
-                }
+            int presetCategory = 0;
+
+            if (entry.preset().is(Identifier.fromNamespaceAndPath("moreworldpresets", "skyblock_world"))) { presetId = "skyblock"; presetCategory = 2; }
+            else if (entry.preset().is(Identifier.fromNamespaceAndPath("moreworldpresets", "challenge_world"))) { presetId = "challenge"; presetCategory = 2; }
+            else if (entry.preset().is(Identifier.fromNamespaceAndPath("moreworldpresets", "oneblock_world"))) { presetId = "oneblock"; presetCategory = 2; }
+            else if (entry.preset().is(Identifier.fromNamespaceAndPath("moreworldpresets", "winter_world"))) { presetId = "winter"; presetCategory = 2; }
+            else if (entry.preset().is(Identifier.fromNamespaceAndPath("moreworldpresets", "skygrid_world"))) { presetId = "skygrid"; presetCategory = 2; }
+            else if (entry.preset().is(Identifier.fromNamespaceAndPath("minecraft", "flat"))) { presetId = "flat"; presetCategory = 1; }
+            else if (entry.preset().is(Identifier.fromNamespaceAndPath("minecraft", "normal"))) { presetId = "normal"; presetCategory = 1; }
+            else if (entry.preset().is(Identifier.fromNamespaceAndPath("minecraft", "amplified"))) { presetId = "amplified"; presetCategory = 1; }
+            else if (entry.preset().is(Identifier.fromNamespaceAndPath("minecraft", "large_biomes"))) { presetId = "large_biomes"; presetCategory = 1; }
+            else if (entry.preset().is(Identifier.fromNamespaceAndPath("minecraft", "single_biome_surface"))) { presetId = "single_biome"; presetCategory = 1; }
+            else if (entry.preset().is(Identifier.fromNamespaceAndPath("minecraft", "debug_all_block_states"))) { presetId = "debug"; presetCategory = 1; }
+            else if (entry.preset().is(Identifier.fromNamespaceAndPath("moreworldpresets", "floating_islands"))) { presetId = "floating_islands"; presetCategory = 3; }
+            if (presetCategory != type) {
+                return;
             }
-            Button.Builder builder = Button.builder(label, (button) -> {
+
+            if (presetId != null) {
+                int[] range = switch (type) {
+                    case 1 -> new int[]{0xFFF589, 0x00FF4D};
+                    case 2 -> new int[]{0x274D99, 0x7566FF};
+                    case 3 -> new int[]{0xAD2424, 0xFF4949};
+                    default -> new int[]{0xFFFFFF, 0xFFFFFF};
+                };
+                int color = range[0];
+                int color2 = range[1];
+                label = GradientTextUtil.gradientText(entry.describePreset().getString(), color, color2);
+            }
+            int bgColor = switch (type) {
+                case 1 -> 0xFF213d21;
+                case 2 -> 0xFF292352;
+                case 3 -> 0xFF401616;
+                default -> 0xFF5A5A5A;
+            };
+            Identifier thumbnail = Identifier.fromNamespaceAndPath("moreworldpresets", "textures/gui/presets/" + presetId + ".png");
+            MoreWorldPresetsClient.PresetCardButton card = new MoreWorldPresetsClient.PresetCardButton(0, 0, 150, thumbnail, label, (button) -> {
                 parent.getUiState().setWorldType(entry);
+                parent.getUiState().setGenerateStructures(true);
+                parent.getUiState().setBonusChest(false);
                 if (entry.preset().is(Identifier.fromNamespaceAndPath("minecraft", "flat")))
                 {
                     parent.getUiState().onChanged();
@@ -125,8 +104,9 @@ public class WorldPresetsScreen extends Screen {
                 }
                 if (entry.preset().is(Identifier.fromNamespaceAndPath("moreworldpresets", "skyblock_world")))
                 {
+                    MWP_FIELDS.SkyblockWorld = 1;
                     parent.getUiState().onChanged();
-                    this.minecraft.setScreen(new SkyblockSettingsScreen(this.parent));
+                    this.minecraft.setScreen(new WorldSettingsScreen(this.parent,0, this));
                     return;
                 }
                 if (entry.preset().is(Identifier.fromNamespaceAndPath("moreworldpresets", "oneblock_world")))
@@ -134,40 +114,61 @@ public class WorldPresetsScreen extends Screen {
                     parent.getUiState().onChanged();
                     parent.getUiState().setGenerateStructures(false);
                 }
-                if (entry.preset().is(Identifier.fromNamespaceAndPath("moreworldpresets", "challenge_world")))
+                if (entry.preset().is(Identifier.fromNamespaceAndPath("moreworldpresets", "skygrid_world")))
                 {
                     parent.getUiState().onChanged();
-                    parent.getUiState().setGenerateStructures(true);
+                    parent.getUiState().setGenerateStructures(false);
+                }
+                if (entry.preset().is(Identifier.fromNamespaceAndPath("moreworldpresets", "challenge_world")))
+                {
+                    MWP_FIELDS.challengeWorld = 1;
+                    this.minecraft.setScreen(new WorldSettingsScreen(this.parent, 1, this));
+                    parent.getUiState().onChanged();
+                    return;
                 }
                 this.minecraft.setScreen(parent);
-            }).width(200);
+            }, bgColor);
             if (entry.isAmplified()) {
-                builder.tooltip(Tooltip.create(AMPLIFIED_HELP_TEXT));
+                card.setTooltip(Tooltip.create(AMPLIFIED_HELP_TEXT));
             }
-            gridlayout$rowhelper.addChild(builder.build());
+            gridlayout$rowhelper.addChild(card);
         });
 
         gridlayout.arrangeElements();
         gridlayout.visitWidgets(this::addRenderableWidget);
 
         this.addRenderableWidget(Button.builder(CommonComponents.GUI_BACK, (button) -> {
-            this.minecraft.setScreen(parent);
+            this.minecraft.setScreen(previousScreen);
         }).bounds(this.width / 2 - 75, this.height - 28, 150, 20).build());
     }
 
-    private Component challengeWorldLabel(Integer value) {
-        String text = switch (value) {
-            case 0 -> "Challenge World: Disabled";
-            case 5 -> "Challenge World: Random";
-            default -> "Challenge World: " + value;
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
+        int bgColor = switch (type) {
+            case 1 -> 0xFF0c1c0c;
+            case 2 -> 0xFF0e0c1c;
+            case 3 -> 0xFF1c0c0c;
+            default -> 0xFF000000;
         };
-        return GradientTextUtil.gradientText(text, 0xF7971E, 0xFFD200);
-    }
+        graphics.fill(0, 0, this.width, this.height, bgColor);
 
-    public void render(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-        this.extractBackground(graphics, mouseX, mouseY, partialTick);
-        graphics.text(this.font, this.title, this.width / 2, 15, 16777215);
         super.extractRenderState(graphics, mouseX, mouseY, partialTick);
+        graphics.pose().pushMatrix();
+        graphics.pose().scale(2.2f, 2.2f);
+        switch (type) {
+            case 1:
+//                graphics.centeredText(this.font, Component.literal("VANILLA PRESETS"), (int) ((this.width / 2) / 2.2), (int) (15 / 2.2), 0xFF347A34);
+                graphics.centeredText(this.font, Component.literal("VANILLA PRESETS"), (int) ((this.width / 2) / 2.2) - 1, (int) (15 / 2.2), 0xFF419941);
+                break;
+            case 2:
+//                graphics.centeredText(this.font, Component.literal("CUSTOM PRESETS"), (int) ((this.width / 2) / 2.2), (int) (15 / 2.2), 0xFF3D347A);
+                graphics.centeredText(this.font, Component.literal("CUSTOM PRESETS"), (int) ((this.width / 2) / 2.2) - 1, (int) (15 / 2.2), 0xFF4D4199);
+                break;
+            case 3:
+//                graphics.centeredText(this.font, Component.literal("LEGACY PRESETS"), (int) ((this.width / 2) / 2.2), (int) (15 / 2.2), 0xFF7A3434);
+                graphics.centeredText(this.font, Component.literal("LEGACY PRESETS"), (int) ((this.width / 2) / 2.2) - 1, (int) (15 / 2.2), 0xFF994141);
+                break;
+        }
+        graphics.pose().popMatrix();
     }
     public void onClose() {
         Minecraft.getInstance().setScreen(parent);
