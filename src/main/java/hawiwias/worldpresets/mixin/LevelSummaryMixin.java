@@ -34,7 +34,7 @@ public class LevelSummaryMixin implements PresetLabelAccessor {
 
                     if (data.getBoolean("winterworld")) moreworldpresets$presetId = "winter";
                     else if (data.getInt("challengeworld") > 0) moreworldpresets$presetId = "challenge:" + data.getInt("challengeworld");
-                    else if (data.getBoolean("skyblockworld")) moreworldpresets$presetId = "skyblock";
+                    else if (data.getBoolean("skyblockworld")) moreworldpresets$presetId = "skyblock:" + data.getInt("skyblockversion");
                     else if (data.getBoolean("oneblockworld")) moreworldpresets$presetId = "oneblock";
                     else if (data.getBoolean("skygridworld")) moreworldpresets$presetId = "skygrid";
                     else {
