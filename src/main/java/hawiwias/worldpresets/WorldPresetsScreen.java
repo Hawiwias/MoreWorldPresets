@@ -84,7 +84,7 @@ public class WorldPresetsScreen extends Screen {
                 default -> 0xFF5A5A5A;
             };
             ResourceLocation thumbnail = ResourceLocation.fromNamespaceAndPath("moreworldpresets", "textures/gui/presets/" + presetId + ".png");
-            MoreWorldPresetsClient.PresetCardButton card = new MoreWorldPresetsClient.PresetCardButton(0, 0, 150, thumbnail, label, (button) -> {
+            PresetCardButton card = new PresetCardButton(0, 0, 150, thumbnail, label, (button) -> {
                 parent.getUiState().setWorldType(entry);
                 parent.getUiState().setGenerateStructures(true);
                 parent.getUiState().setBonusChest(false);

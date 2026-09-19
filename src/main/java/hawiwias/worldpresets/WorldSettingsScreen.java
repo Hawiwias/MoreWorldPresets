@@ -75,7 +75,7 @@ public class WorldSettingsScreen extends Screen {
                 this.minecraft.setScreen(parent);
             };
 
-            MoreWorldPresetsClient.PresetCardButton card = new MoreWorldPresetsClient.PresetCardButton(
+            PresetCardButton card = new PresetCardButton(
                     0, 0, 150, ResourceLocation.fromNamespaceAndPath("moreworldpresets", "textures/gui/presets/" + thumbnails.get(i) + ".png"), label, onPress, 0xFF292352);
             card.setTooltip(tooltips[i]);
             gridlayout$rowhelper.addChild(card);

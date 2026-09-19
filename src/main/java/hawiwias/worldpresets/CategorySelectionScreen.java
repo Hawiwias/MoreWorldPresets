@@ -24,9 +24,9 @@ public class CategorySelectionScreen extends Screen {
             this.minecraft.setScreen(parent);
         }).bounds(this.width / 2 - 75, this.height - 28, 150, 20).build());
 
-        this.addRenderableWidget(new MoreWorldPresetsClient.ColoredButton(0, 0, third, this.height, Component.empty(), (button) -> this.minecraft.setScreen(new WorldPresetsScreen(this.parent, this, 1)), 0xFF0c1c0c));
-        this.addRenderableWidget(new MoreWorldPresetsClient.ColoredButton(third, 0, third, this.height, Component.empty(), (button) -> this.minecraft.setScreen(new WorldPresetsScreen(this.parent, this, 2)), 0xFF0e0c1c));
-        this.addRenderableWidget(new MoreWorldPresetsClient.ColoredButton(third * 2, 0, this.width - third * 2, this.height, Component.empty(), (button) -> this.minecraft.setScreen(new WorldPresetsScreen(this.parent, this, 3)), 0xFF1c0c0c));
+        this.addRenderableWidget(new ColoredButton(0, 0, third, this.height, Component.empty(), (button) -> this.minecraft.setScreen(new WorldPresetsScreen(this.parent, this, 1)), 0xFF0c1c0c));
+        this.addRenderableWidget(new ColoredButton(third, 0, third, this.height, Component.empty(), (button) -> this.minecraft.setScreen(new WorldPresetsScreen(this.parent, this, 2)), 0xFF0e0c1c));
+        this.addRenderableWidget(new ColoredButton(third * 2, 0, this.width - third * 2, this.height, Component.empty(), (button) -> this.minecraft.setScreen(new WorldPresetsScreen(this.parent, this, 3)), 0xFF1c0c0c));
     }
     public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
         super.render(graphics, mouseX, mouseY, partialTick);
