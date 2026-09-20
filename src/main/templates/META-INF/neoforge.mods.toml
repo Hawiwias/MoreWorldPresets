@@ -22,9 +22,9 @@ license="${mod_license}"
 modId="${mod_id}"
 version="${mod_version}"
 displayName="${mod_name}"
-logoFile="assets/moreworldpresets/icon.png"
+logoFile="assets/moreworldpresets/MWP_BANNER.png"
 description='''
-More World Presets updates the world generation screen and adds Skyblock, OneBlock, Skygrid, Winter World, and 4 Challenge Worlds for Minecraft world generation.
+This mod brings 8 new world generation presets. Old classics like Skyblock, Oneblock, Skygrid and more are included!
 '''
 
 # A URL to query for updates for this mod. See the JSON update specification https://docs.neoforged.net/docs/misc/updatechecker/
