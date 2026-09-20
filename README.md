@@ -1,4 +1,5 @@
-![Replace this with a description](https://cdn.modrinth.com/data/cached_images/9ef6180059c04cf9116d1e8f31c5957b6961846d.png)
+![MWP LOGO](https://cdn.modrinth.com/data/cached_images/9ef6180059c04cf9116d1e8f31c5957b6961846d.png)
+## **V1.4 - UI OVERHAUL UPDATE (20.09.2026)**
 ### 8 BRAND NEW WORLD GENERATION PRESETS (+1 legacy):
 - **Winter World**
 - **Oneblock**
@@ -6,9 +7,8 @@
 - **Skygrid**
 - **Challenge World 1, Challenge World 2, Challenge World 3, Challenge World 4**
 - **Floating Islands (legacy)**
-## **Brand new world preset selection screen:**
-![Replace this with a description](https://cdn.modrinth.com/data/cached_images/06af9a70fdae787cdd97c276ee8faab642c22d90.png)
-
+## **Brand new world preset UI:**
+![Replace this with a description](https://cdn.modrinth.com/data/cached_images/4e2c167aa6a0178d678bd82015d46658f0567b50.gif)
 ## **1st World Preset - Winter World**
 
 Many of you may remember this feature from the old Minecraft Alpha versions. Well it's back now with **more challenging** features! 
@@ -69,7 +69,7 @@ Here the world generation is normal. But your total health is **cut in half (5 h
 
 Here the chunk dimesions are **11x11, with wide void gaps**. Nice and simple. **Hard to traverse and find structures**. Good Luck on beating the game!
 
-![Replace this with a description](https://cdn.modrinth.com/data/cached_images/7795309e61b6d31aa7a27a92f67b02b11cc5a995.png)
+![Challenge world 4](https://cdn.modrinth.com/data/cached_images/0e1e182a4b0e51ed511e2d24d8d0a523b051363e.png)
 
 ## **9th World Preset - Floating Islands**
 
